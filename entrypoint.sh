@@ -179,8 +179,8 @@ x=1
 while [ $x -le 60 ]
 do
 	DOMAIN=`domain_decider`
-        wget https://github.com/mrkksparrow/agent/raw/main/Site24x7MonitoringAgent.install
-        wget https://github.com/mrkksparrow/agent/raw/main/psobj.py
+        wget https://github.com/mrkksparrow/agent/raw/tester/Site24x7MonitoringAgent.install
+        wget https://github.com/mrkksparrow/agent/raw/tester/psobj.py
         if [ $? = 0 ]
         then
                 constructInstallationParam
