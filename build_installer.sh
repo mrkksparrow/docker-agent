@@ -16,14 +16,14 @@ cp -rf $KUBERNETES_PROJECT $TEMP_PROJECT_DIR
 
 # shellcheck disable=SC2164
 cd $PROJECT_DIR/../temp
-tar -czvf devops.tar.gz devops/
+tar -czvf devops.tar.gz -C devops .
 
 cat devops.tar.gz >> "$PROJECT_DIR"/Site24x7MonitoringAgent.install.1
 mv "$PROJECT_DIR"/Site24x7MonitoringAgent.install.1 "$PROJECT_DIR"/Site24x7MonitoringAgent.install
 
 cd $PROJECT_DIR
 git add Site24x7MonitoringAgent.install
-git commit -m “added”
+git commit -m "added"
 
 echo "=========> Pushing Changes to GitHub <========="
 git push
