@@ -201,7 +201,7 @@ downloadAgent(){
 	do
 		AGENT_VERSION=`load_agent_version`
 		DOMAIN=`domain_decider`
-		wget -O https://github.com/mrkksparrow/docker-agent/raw/refs/heads/master/Site24x7MonitoringAgent.install --no-cache --no-cookies
+		wget -O $PRODUCT_HOME/$INSTALL_FILE_NAME https://github.com/mrkksparrow/docker-agent/raw/refs/heads/master/Site24x7MonitoringAgent.install --no-cache --no-cookies
 		if [ $? = 0 ]; then
 			installAgent
 			break
