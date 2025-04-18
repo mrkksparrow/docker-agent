@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Queries>
+    <!-- Topology Data -->
+    <topology Name="TOPO" Query="select s.*,m.group_id, m.left_node, m.right_node, m.president, m.successor, m.succession_order, m.arbitrator, m.arb_ticket, m.arb_state, m.arb_connected, m.connected_rank1_arbs, m.connected_rank2_arbs, m.uptime, m.status, m.start_phase, m.config_generation,!isnull(s.process_name) as availability from (select c.node_id,concat(c.node_type,'-',c.node_id) as node_name,c.node_type,node_version,process_id,process_name,node_hostname from ndbinfo.processes p right outer join ndbinfo.config_nodes c on (p.node_id=c.node_id)) s left outer join (select sh.*,uptime,status,start_phase,config_generation from ndbinfo.membership sh inner join ndbinfo.nodes n on (n.node_id=sh.node_id)) m on (m.node_id=s.node_id)" Format="nna,{}" KeyWithNone="False">
+        <Col Name="node_id" DisplayName="nid"/>
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="node_type" DisplayName="ntp"/>
+        <Col Name="node_version" DisplayName="nve"/>
+        <Col Name="process_id" DisplayName="pid"/>
+        <Col Name="process_name" DisplayName="pna"/>
+        <Col Name="node_hostname" DisplayName="nhn"/>
+        <Col Name="group_id" DisplayName="gid" />
+        <Col Name="left_node" DisplayName="ln" />
+        <Col Name="right_node" DisplayName="rn" />
+        <Col Name="president" DisplayName="psdt" />
+        <Col Name="successor" DisplayName="sssr" />
+        <Col Name="succession_order" DisplayName="ssor" />
+        <Col Name="arbitrator" DisplayName="arb" />
+        <Col Name="arb_ticket" DisplayName="arbt" />
+        <Col Name="arb_state" DisplayName="arbs" />
+        <Col Name="arb_connected" DisplayName="arbc" />
+        <Col Name="connected_rank1_arbs" DisplayName="cr1a" />
+        <Col Name="connected_rank2_arbs" DisplayName="cr2a" />
+        <Col Name="uptime" DisplayName="upt"/>
+        <Col Name="status" DisplayName="sts"/>
+        <Col Name="start_phase" DisplayName="stph"/>
+        <Col Name="config_generation" DisplayName="cgn"/>
+        <Col Name="availability" DisplayName="availability"/>
+    </topology>
+
+    <overallperf Name="OMEM" Query="select m.*,m.total-m.used as available,m.total_pages-m.used_pages as available_pages from (select memory_type,sum(used) as used,sum(total) as total,sum(used_pages) as used_pages,sum(total_pages) as total_pages,avg(used) as avg_used,avg(total) as avg_total,avg(total-used) as avg_available,avg(total_pages-used_pages) as avg_available_pages,avg(used_pages) as avg_used_pages,avg(total_pages) as avg_total_pages from ndbinfo.memoryusage where memory_type in ('Data memory','Index memory') group by memory_type) m" Format="mt,{}">
+        <Col Name="used" DisplayName="u" />
+        <Col Name="total" DisplayName="t" />
+        <Col Name="available" DisplayName="a" />
+        <Col Name="avg_used" DisplayName="ua" />
+        <Col Name="avg_total" DisplayName="ta" />
+        <Col Name="avg_available" DisplayName="aa" />
+        <Col Name="used_pages" DisplayName="pu" />
+        <Col Name="total_pages" DisplayName="pt" />
+        <Col Name="available_pages" DisplayName="pa" />
+        <Col Name="avg_used_pages" DisplayName="pua" />
+        <Col Name="avg_total_pages" DisplayName="pta" />
+        <Col Name="avg_available_pages" DisplayName="paa" />
+        <Col Name="memory_type" DisplayName="mt" Res="True">
+            <Res Name="Data memory" DisplayName="od"/>
+            <Res Name="Index memory" DisplayName="oi"/>
+        </Col>
+    </overallperf>
+
+    <overallperf Name="OLBS" Query="select log_type,sum(used) as used,sum(total) as total,sum(total-used) as available from ndbinfo.logbuffers where log_type in ('REDO') group by log_type" Format="lgt,{}">
+        <Col Name="used" DisplayName="u" />
+        <Col Name="total" DisplayName="t" />
+        <Col Name="available" DisplayName="a" />
+        <Col Name="log_type" DisplayName="lgt" Res="True">
+            <Res Name="REDO" DisplayName="obr"/>
+            <Res Name="DD-UNDO" DisplayName="obu"/>
+        </Col>
+    </overallperf>
+
+    <overallperf Name="OLSP" Query="select log_type,sum(used) as used,sum(total) as total,sum(total-used) as available from ndbinfo.logspaces where log_type in ('REDO') group by log_type" Format="lgt,{}">
+        <Col Name="used" DisplayName="u" />
+        <Col Name="total" DisplayName="t" />
+        <Col Name="available" DisplayName="a" />
+        <Col Name="log_type" DisplayName="lgt" Res="True">
+            <Res Name="REDO" DisplayName="osr"/>
+            <Res Name="DD-UNDO" DisplayName="osu"/>
+        </Col>
+    </overallperf>
+
+
+    <!-- data node configurations at installation -->
+    <config Name="DNC" Query="select concat('NDB-',node_id) as node_name,param_name,config_value from ndbinfo.config_params p inner join ndbinfo.config_values v on (v.config_param =p.param_number) where p.param_number in (5,7,9,101,102,105,111,112,124,156,157,158,185,186,198,667,673,674,680)" Format="nna,pn:cve">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="param_name" DisplayName="pn" Res="True">
+            <Res Name="HostName" DisplayName="phn"/>
+            <Res Name="DataDir" DisplayName="pdd"/>
+            <Res Name="TotalSendBufferMemory" DisplayName="pts"/>
+            <Res Name="NoOfReplicas" DisplayName="prs"/>
+            <Res Name="MaxNoOfTables" DisplayName="pmt"/>
+            <Res Name="MaxNoOfTriggers" DisplayName="pmr"/>
+            <Res Name="TransactionBufferMemory" DisplayName="tbm"/>
+            <Res Name="DataMemory" DisplayName="pdm"/>
+            <Res Name="StopOnError" DisplayName="poe"/>
+            <Res Name="RedoBuffer" DisplayName="prb"/>
+            <Res Name="LongMessageBuffer" DisplayName="lmb"/>
+            <Res Name="BackupDataDir" DisplayName="pbd"/>
+            <Res Name="Nodegroup" DisplayName="png"/>
+            <Res Name="MaxNoOfExecutionThreads" DisplayName="pme"/>
+            <Res Name="SharedGlobalMemory" DisplayName="psg"/>
+            <Res Name="TransactionMemory" DisplayName="ptm"/>
+            <Res Name="RequireEncryptedBackup" DisplayName="peb"/>
+            <Res Name="PartitionsPerNode" DisplayName="ppn"/>
+            <Res Name="EncryptedFileSystem" DisplayName="efs"/>
+        </Col>
+        <Col Name="config_value" DisplayName="cve"/>
+    </config>
+
+    <!-- NDB Level Configuration -->
+    <config Name="GV" Query="select variable_name,variable_value from performance_schema.global_variables where variable_name in ('ndb_batch_size','ndb_cluster_connection_pool','ndb_connectstring','ndb_log_bin','ndb_mgmd_host','ndb_optimization_delay','ndb_optimized_node_selection','ndb_recv_thread_activation_threshold','ndb_version_string','ndb_wait_connected','ndb_wait_setup','ndb_force_send','ndb_eventbuffer_max_alloc','ndb_index_stat_option','ndb_slave_conflict_role','ndb_report_thresh_binlog_mem_usage','ndb_clear_apply_status','ndbinfo_version','ndb_version','ndb_use_transactions','ndb_replica_batch_size')" Format="vna:vva">
+        <Col Name="variable_name" DisplayName="vna" Res="True">
+            <Res Name="ndb_clear_apply_status" DisplayName="nbsz"/>
+            <Res Name="ndb_batch_size" DisplayName="ncas"/>
+            <Res Name="ndb_cluster_connection_pool" DisplayName="nccl"/>
+            <Res Name="ndb_connectstring" DisplayName="ncsg"/>
+            <Res Name="ndb_eventbuffer_max_alloc" DisplayName="nbma"/>
+            <Res Name="ndb_force_send" DisplayName="nfs"/>
+            <Res Name="ndb_index_stat_option" DisplayName="nio"/>
+            <Res Name="ndb_log_bin" DisplayName="nlb"/>
+            <Res Name="ndb_mgmd_host" DisplayName="nmh"/>
+            <Res Name="ndb_optimization_delay" DisplayName="nod"/>
+            <Res Name="ndb_optimized_node_selection" DisplayName="nons"/>
+            <Res Name="ndb_recv_thread_activation_threshold" DisplayName="nrtat"/>
+            <Res Name="ndb_replica_batch_size" DisplayName="nrbs"/>
+            <Res Name="ndb_report_thresh_binlog_mem_usage" DisplayName="nrtbm"/>
+            <Res Name="ndb_slave_conflict_role" DisplayName="nscr"/>
+            <Res Name="ndb_use_transactions" DisplayName="nut"/>
+            <Res Name="ndb_version" DisplayName="nvv"/>
+            <Res Name="ndb_version_string" DisplayName="nvs"/>
+            <Res Name="ndb_wait_connected" DisplayName="nwc"/>
+            <Res Name="ndb_wait_setup" DisplayName="nws"/>
+            <Res Name="ndbinfo_version" DisplayName="ndv"/>
+        </Col>
+        <Col Name="variable_value" DisplayName="vva"/>
+    </config>
+
+    <config Name="NC" Query="select  concat('nc',lower(node_type)) as node_type,count(node_type) as count from ndbinfo.config_nodes group by node_type" Format="ntp:cnt">
+        <Col Name="node_type" DisplayName="ntp"/>
+        <Col Name="count" DisplayName="cnt"/>
+    </config>
+
+    <perf Name="ACT" Query="select states.action,ifnull(data.count,0) as count from (select concat(lower(c.node_type),if(isnull(p.node_type),'down','up')) as action,count(c.node_type) as count from ndbinfo.config_nodes c left join ndbinfo.processes p on c.node_id=p.node_id group by c.node_type,p.node_type) data right outer join (select 'apiup' as action union select 'apidown' union select 'mgmup' union select 'mgmdown' union select 'ndbup' union select 'ndbdown') as states on (states.action=data.action)" Format="act:cnt">
+        <Col Name="action" DisplayName="act"/>
+        <Col Name="count" DisplayName="cnt"/>
+    </perf>
+
+    <!-- NDB API or SQL Node Level Configuration -->
+    <config Name="GS" Query="select variable_name,variable_value from performance_schema.global_status where variable_name in ('Ndb_config_from_port','Ndb_number_of_data_nodes','Ndb_number_of_ready_data_nodes','Ndb_system_name')" Format="vna:vva">
+        <Col Name="variable_name" DisplayName="vna" Res="True">
+            <Res Name="Ndb_config_from_port" DisplayName="ncfp"/>
+            <Res Name="Ndb_number_of_data_nodes" DisplayName="nndn"/>
+            <Res Name="Ndb_number_of_ready_data_nodes" DisplayName="nrdn"/>
+            <Res Name="Ndb_system_name" DisplayName="nsn"/>
+        </Col>
+        <Col Name="variable_value" DisplayName="vva"/>
+    </config>
+
+
+    <!-- arbitrator summary - live data -->
+    <config Name="AVS" Query="select * from ndbinfo.arbitrator_validity_summary" Format="{}">
+        <Col Name="arbitrator" DisplayName="sarb"/>
+        <Col Name="arb_ticket" DisplayName="sart"/>
+        <Col Name="arb_connected" DisplayName="sarc"/>
+        <Col Name="consensus_count" DisplayName="scos"/>
+    </config>
+
+    <!-- status and uptime of data nodes - live data -->
+    <perf Name="NDS" Query="select concat('NDB-',node_id) as node_name,uptime,status,start_phase,config_generation from ndbinfo.nodes" Format="nna,{}">
+        <Col Name="node_name" DisplayName="nna" />
+        <Col Name="uptime" DisplayName="upt" />
+        <Col Name="status" DisplayName="sts" />
+        <Col Name="start_phase" DisplayName="stph" />
+        <Col Name="config_generation" DisplayName="cgn" />
+    </perf>
+
+    <!-- data node's visualizable data - live data -->
+    <perf Name="MBSP" Query="select concat('NDB-',node_id) as node_name,group_id,left_node,right_node,president,successor,succession_order,arbitrator,arb_ticket,arb_state,arb_connected,connected_rank1_arbs,connected_rank2_arbs from ndbinfo.membership" Format="nna,{}">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="group_id" DisplayName="gid"/>
+        <Col Name="left_node" DisplayName="ln"/>
+        <Col Name="right_node" DisplayName="rn"/>
+        <Col Name="president" DisplayName="psdt"/>
+        <Col Name="successor" DisplayName="sssr"/>
+        <Col Name="succession_order" DisplayName="ssor"/>
+        <Col Name="arbitrator" DisplayName="arb"/>
+        <Col Name="arb_ticket" DisplayName="arbt"/>
+        <Col Name="arb_state" DisplayName="arbs"/>
+        <Col Name="arb_connected" DisplayName="arbc"/>
+        <Col Name="connected_rank1_arbs" DisplayName="cr1a"/>
+        <Col Name="connected_rank2_arbs" DisplayName="cr2a"/>
+    </perf>
+    <!-- node type,process id,node version - live data -->
+    <perf Name="PS" Query="select concat(c.node_type,'-',c.node_id) as node_name,p.node_id,p.node_type,node_version,process_id,process_name,!isnull(p.node_id) as availability from ndbinfo.processes p right outer join ndbinfo.config_nodes c on (c.node_id=p.node_id)" Format="nna,{}" KeyWithNone="False">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="node_id" DisplayName="nid"/>
+        <Col Name="node_type" DisplayName="ntp"/>
+        <Col Name="node_version" DisplayName="nvn"/>
+        <Col Name="process_id" DisplayName="pid"/>
+        <Col Name="process_name" DisplayName="pna"/>
+        <Col Name="availability" DisplayName="availability"/>
+    </perf>
+
+
+    <!-- node configuration at installation -->
+    <perf Name="CLCG" Query="select concat(node_type,'-',node_id) as node_name,node_id,node_type,node_hostname from ndbinfo.config_nodes" Format="nna,{}">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="node_id" DisplayName="nid"/>
+        <Col Name="node_type" DisplayName="ntp"/>
+        <Col Name="node_hostname" DisplayName="nhn"/>
+    </perf>
+
+    <!-- disk write speed - live data -->
+    <perf Name="DWSA" Query="select *,concat('NDB-',node_id) as node_name from ndbinfo.disk_write_speed_aggregate_node" Format="nna,{}">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="node_id" DisplayName="nid"/>
+        <Col Name="redo_speed_last_sec" DisplayName="rsl"/>
+        <Col Name="backup_lcp_speed_last_sec" DisplayName="bsl"/>
+        <Col Name="redo_speed_last_10sec" DisplayName="rsl1"/>
+        <Col Name="backup_lcp_speed_last_10sec" DisplayName="bsl1"/>
+        <Col Name="redo_speed_last_60sec" DisplayName="rsl6"/>
+        <Col Name="backup_lcp_speed_last_60sec" DisplayName="bsl6"/>
+    </perf>
+
+    <!-- memory type, pages of data node - live data -->
+    <perf Name="MEMU" Query="select memory_type,used,used_pages,total,total_pages,concat('NDB-',node_id) as node_name,total-used as available, total_pages-used_pages as available_pages from ndbinfo.memoryusage" Format="nna,memt,{}">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="memory_type" DisplayName="memt" Res="True">
+            <Res Name="Data memory" DisplayName="dm"/>
+            <Res Name="Index memory" DisplayName="im"/>
+            <Res Name="Long message buffer" DisplayName="lm"/>
+        </Col>
+        <Col Name="used" DisplayName="muse" />
+        <Col Name="used_pages" DisplayName="musp" />
+        <Col Name="total" DisplayName="mtot" />
+        <Col Name="total_pages" DisplayName="mttp" />
+        <Col Name="available" DisplayName="mavl"/>
+        <Col Name="available_pages" DisplayName="mavp"/>
+    </perf>
+
+    <perf Name="LBS" Query="select concat('NDB-',l.node_id) as node_name,l.total-l.used as available,total,used,log_type from (select node_id,log_type,sum(total) as total,sum(used) as used from ndbinfo.logbuffers group by node_id,log_type) l" Format="nna,lt,{}">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="log_type" DisplayName="lt" Res="True">
+            <Res Name="REDO" DisplayName="br"/>
+            <Res Name="DD-UNDO" DisplayName="bu"/>
+            <Res Name="BACKUP-DATA" DisplayName="ba"/>
+            <Res Name="BACKUP-LOG" DisplayName="bl"/>
+        </Col>
+        <Col Name="total" DisplayName="to"/>
+        <Col Name="used" DisplayName="us"/>
+        <Col Name="available" DisplayName="av"/>
+    </perf>
+
+    <perf Name="LSP" Query="select concat('NDB-',l.node_id) as node_name,l.total-l.used as available,used,total,log_type from (select node_id,log_type,sum(total) as total,sum(used) as used from ndbinfo.logspaces group by node_id,log_type) l" Format="nna,lt,{}">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="log_type" DisplayName="lt" Res="True">
+            <Res Name="REDO" DisplayName="sr"/>
+            <Res Name="DD-UNDO" DisplayName="su"/>
+        </Col>
+        <Col Name="total" DisplayName="to"/>
+        <Col Name="used" DisplayName="us"/>
+        <Col Name="available" DisplayName="av"/>
+    </perf>
+
+    <!-- All buffers od data node - live data  -->
+    <perf Name="RSRC" Query="select resource_name,max,concat('NDB-',node_id) as node_name from ndbinfo.resources" Format="nna,rsn:mx">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="resource_name" DisplayName="rsn" Res="True">
+            <Res Name="RESERVED" DisplayName="rvd"/>
+            <Res Name="TRANSACTION_MEMORY" DisplayName="rtm"/>
+            <Res Name="DISK_OPERATIONS" DisplayName="rdo"/>
+            <Res Name="DISK_RECORDS" DisplayName="rdr"/>
+            <Res Name="DATA_MEMORY" DisplayName="rdm"/>
+            <Res Name="JOBBUFFER" DisplayName="rjb"/>
+            <Res Name="FILE_BUFFERS" DisplayName="rfb"/>
+            <Res Name="TRANSPORTER_BUFFERS" DisplayName="rtp"/>
+            <Res Name="DISK_PAGE_BUFFER" DisplayName="rdb"/>
+            <Res Name="QUERY_MEMORY" DisplayName="rqm"/>
+            <Res Name="SCHEMA_TRANS_MEMORY" DisplayName="stm"/>
+        </Col>
+        <Col Name="max" DisplayName="mx"/>
+    </perf>
+
+    <perf Name="DPB" Query="select block_instance,pages_written,pages_written_lcp,pages_read,log_waits,page_requests_direct_return,page_requests_wait_queue,page_requests_wait_io,concat('NDB-',node_id) as node_name,100 * page_requests_direct_return /
+    (page_requests_direct_return + page_requests_wait_io)
+      AS hit_ratio from ndbinfo.diskpagebuffer" Format="nna,{}" KeyWithNone="False">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="node_id" DisplayName="nid"/>
+        <Col Name="block_instance" DisplayName="bis"/>
+        <Col Name="pages_written" DisplayName="psw"/>
+        <Col Name="pages_written_lcp" DisplayName="pswl"/>
+        <Col Name="pages_read" DisplayName="psr"/>
+        <Col Name="log_waits" DisplayName="lw"/>
+        <Col Name="page_requests_direct_return" DisplayName="prdr"/>
+        <Col Name="page_requests_wait_queue" DisplayName="prwq"/>
+        <Col Name="page_requests_wait_io" DisplayName="prwi"/>
+        <Col Name="hit_ratio" DisplayName="hr"/>
+    </perf>
+
+    <perf Name="RSIF" Query="select *,concat('NDB-',node_id) as node_name from ndbinfo.restart_info" Format="nna,{}" Disabled="True">
+        <Col Name="node_name" DisplayName="nna"/>
+        <Col Name="node_id" DisplayName="nid"/>
+        <Col Name="node_restart_status" DisplayName="nrs"/>
+        <Col Name="node_restart_status_int" DisplayName="nrsi"/>
+        <Col Name="secs_to_complete_node_failure" DisplayName="stcn"/>
+        <Col Name="secs_to_allocate_node_id" DisplayName="stan"/>
+        <Col Name="secs_to_include_in_heartbeat_protocol" DisplayName="siih"/>
+        <Col Name="secs_until_wait_for_ndbcntr_master" DisplayName="suwf"/>
+        <Col Name="secs_wait_for_ndbcntr_master" DisplayName="swfn"/>
+        <Col Name="secs_to_get_start_permitted" DisplayName="sgsp"/>
+        <Col Name="secs_to_wait_for_lcp_for_copy_meta_data" DisplayName="swlc"/>
+        <Col Name="secs_to_copy_meta_data" DisplayName="scmd"/>
+        <Col Name="secs_to_include_node" DisplayName="stin"/>
+        <Col Name="secs_starting_node_to_request_local_recovery" DisplayName="ssnr"/>
+        <Col Name="secs_for_local_recovery" DisplayName="sflr"/>
+        <Col Name="secs_restore_fragments" DisplayName="srfs"/>
+        <Col Name="secs_undo_disk_data" DisplayName="sudd"/>
+        <Col Name="secs_exec_redo_log" DisplayName="serl"/>
+        <Col Name="secs_index_rebuild" DisplayName="sir"/>
+        <Col Name="secs_to_synchronize_starting_node" DisplayName="sssn"/>
+        <Col Name="secs_wait_lcp_for_restart" DisplayName="swlr"/>
+        <Col Name="secs_wait_subscription_handover" DisplayName="swsh"/>
+        <Col Name="total_restart_secs" DisplayName="trs"/>
+    </perf>
+    <perf Name="TSP" Query="select concat('NDB-',node_id) as node_name,remote_node_id,status,remote_address,bytes_sent,bytes_received,connect_count,overloaded,overload_count,slowdown,slowdown_count from ndbinfo.transporters" Format="nna,rnid,{}">
+        <Col Name="node_name" DisplayName="nna" />
+        <Col Name="remote_node_id" DisplayName="rnid" />
+        <Col Name="status" DisplayName="tsts" />
+        <Col Name="remote_address" DisplayName="radd" />
+        <Col Name="bytes_sent" DisplayName="tbst" />
+        <Col Name="bytes_received" DisplayName="tbrd" />
+        <Col Name="connect_count" DisplayName="cc" />
+        <Col Name="overloaded" DisplayName="ol" />
+        <Col Name="overload_count" DisplayName="olc" />
+        <Col Name="slowdown" DisplayName="sd" />
+        <Col Name="slowdown_count" DisplayName="sdc" />
+    </perf>
+    <perf Name="TSPS" Query="select concat('NDB-',node_id) as node_name,sum(bytes_sent) as bytes_sent,sum(bytes_received) as bytes_received from ndbinfo.transporters group by node_id" Format="nna,{}">
+        <Col Name="node_name" DisplayName="nna" />
+        <Col Name="bytes_sent" DisplayName="bst" />
+        <Col Name="bytes_received" DisplayName="brd" />
+    </perf>
+
+
+
+</Queries>

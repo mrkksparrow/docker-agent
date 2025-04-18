@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<!--
+ Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+
+        NOTE:  This service manifest is not editable; its contents will
+        be overwritten by package or patch operations, including
+        operating system upgrade.  Make customizations in a different
+        file.
+-->
+
+<service_bundle type='manifest' name='SUNWsite24x7dr:site24x7'>
+
+<service
+        name='system/site24x7monagent'
+        type='service'
+        version='1'>
+
+        <create_default_instance enabled='false' />
+
+        <single_instance />
+
+        <exec_method
+                type='method'
+                name='start'
+                exec='/opt/site24x7/monagent/bin/monagent start'
+                timeout_seconds='60'/>
+
+        <exec_method
+                type='method'
+                name='stop'
+                exec='/opt/site24x7/monagent/bin/monagent stop'
+                timeout_seconds='60' />
+
+        <exec_method
+                type='method'
+                name='refresh'
+                exec='/opt/site24x7/monagent/bin/monagent restart'
+                timeout_seconds='60' />
+
+
+</service>
+
+</service_bundle>

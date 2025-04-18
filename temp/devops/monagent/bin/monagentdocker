@@ -1,0 +1,29 @@
+#!/bin/bash
+MON_AGENT_USER="site24x7-agent"
+
+is_root_user(){
+	if [ "$(id -u)" == "0" ]; then
+		docker_conf_update
+	else
+		echo "This script needs to be executed as root."
+	fi
+}
+
+docker_conf_update(){
+	if [ -f "/var/run/docker.sock" ]; then
+		group_id = `stat -c %g /var/run/docker.sock`
+		if [ "$group_id" == 0 ]; then
+			`chmod o=rwx /var/run/docker.sock 2>&1>/dev/null`	
+		else
+			`/usr/sbin/useradd -g $group_id $MON_AGENT_USER 2>&1>/dev/null`
+		fi
+	else
+		if [ `getent group docker` ]; then
+       	 `usermod -a -G "docker" $MON_AGENT_USER`
+		else
+		  echo "docker group does not exist."
+		fi
+	fi
+}
+
+is_root_user

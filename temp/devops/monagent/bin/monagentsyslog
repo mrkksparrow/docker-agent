@@ -1,0 +1,180 @@
+#!/bin/bash
+
+#Author : Arunagiriswaran E
+#Company : ZOHOCORP
+
+SUCCESS=0
+WARNING=1
+FAILURE=2
+RSYSLOG_ETCDIR_CONF=/etc/rsyslog.d
+SITE24X7_RSYSLOG_CONFFILE=$RSYSLOG_ETCDIR_CONF/07-site24x7.conf
+SITE24X7_HOST=127.0.0.1
+SITE24X7_SYSLOG_PORT=8822
+RSYSLOG_SERVICE=rsyslog
+RSYSLOGD=rsyslogd
+MIN_RSYSLOG_VERSION=5.8.0
+MON_AGENT_INSTALL_LOG=/opt/site24x7/site24x7install.log
+RSYSLOG_DIR=/var/spool/rsyslog
+SUDO=""
+PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:$PATH
+
+logToFile() {
+	echo $(date +"%F %T.%N") "    $1" >> $MON_AGENT_INSTALL_LOG 2>&1
+}
+
+isRootUser() {
+	if [ "$(id -u)" != "0" ]; then
+		SUDO="sudo -E"
+   	fi
+}
+
+confFileChanges()
+{
+confContents="
+#          -------------------------------------------------------
+#          Syslog Logging Directives for Site24x7 (www.site24x7.com)
+#          -------------------------------------------------------
+
+# Define the template used for sending logs to site24x7. Do not change this format.
+\$template Site24x7Format,\"<%pri%> %timestamp% %HOSTNAME% %app-name% %msg%\n\"
+
+\$WorkDirectory /var/spool/rsyslog # where to place spool files
+\$ActionQueueFileName fwdRule1 # unique name prefix for spool files
+\$ActionQueueMaxDiskSpace 1g   # 1gb space limit (use as much as possible)
+\$ActionQueueSaveOnShutdown on # save messages to disk on shutdown
+\$ActionQueueType LinkedList   # run asynchronously
+\$ActionResumeRetryCount -1    # infinite retries if host is down
+
+# Send messages to Site24x7 over UDP using the template.
+*.*             @$1:$2;Site24x7Format
+
+#     -------------------------------------------------------
+"
+
+cat << EOIPFW > $SITE24X7_RSYSLOG_CONFFILE
+$confContents
+EOIPFW
+}
+
+
+#check if SeLinux service is enforced
+checkIfSelinuxServiceEnforced()
+{
+	isSelinuxInstalled=$(getenforce -ds 2>/dev/null)
+	if [ $? -ne 0 ]; then
+		logToFile "selinux disabled."
+	elif [ $(getenforce | grep "Enforcing" | wc -l) -gt 0 ]; then
+		logToFile "selinux status is 'Enforcing'. Please disable it and start the rsyslog daemon manually."
+		echo "selinux status is 'Enforcing'. Please disable it and start the rsyslog daemon manually."
+		exit $FAILURE
+	fi
+}
+
+getOsDetails()
+{
+	UNAME=$(uname | tr "[:upper:]" "[:lower:]")
+	if [ "$UNAME" == "linux" ]; then
+		if [ -f /etc/lsb-release -o -d /etc/lsb-release.d ]; then
+			LINUX_DIST=$(lsb_release -i | cut -d: -f2 | sed s/'^\t'//)
+		elif [ -f /etc/system-release ]; then
+			LINUX_DIST=$(cat /etc/system-release  | cut -f 1 -d  " ")
+		else
+			LINUX_DIST=$(ls -d /etc/[A-Za-z]*[_-][rv]e[lr]* | grep -v "lsb" | cut -d'/' -f3 | cut -d'-' -f1 | cut -d'_' -f1)
+		fi
+	fi
+
+	if [ "$LINUX_DIST" == "" ]; then
+		LINUX_DIST=$(uname)
+	fi
+}
+
+#create /var/spool/rsyslog directory if not already present. Modify the permission of this directory for Ubuntu
+createRsyslogDir()
+{
+	if [ -d "$RSYSLOG_DIR" ]; then
+		logToFile "$RSYSLOG_DIR already exist, so not creating directory."
+		if [[ "$LINUX_DIST" == *"Ubuntu"* ]]; then
+			logToFile "INFO: Changing the permission on the rsyslog in /var/spool"
+			chown -R syslog:adm $RSYSLOG_DIR 2>&1>/dev/null
+		fi
+	else
+		logToFile "INFO: Creating directory $RSYSLOG_DIR"
+		mkdir -p $RSYSLOG_DIR
+		if [[ "$LINUX_DIST" == *"Ubuntu"* ]]; then
+			chown -R syslog:adm $RSYSLOG_DIR 2>&1>/dev/null
+		fi
+	fi
+}
+
+compareVersions()
+{
+	typeset    IFS='.'
+	typeset -a v1=( $1 )
+	typeset -a v2=( $2 )
+	typeset    n diff
+
+	for (( n=0; n<$3; n+=1 )); do
+	diff=$((v1[n]-v2[n]))
+	if [ $diff -ne 0 ] ; then
+		[ $diff -le 0 ] && echo '-1' || echo '1'
+		return
+	fi
+	done
+	echo  '0'
+}
+
+restartRsyslog()
+{
+	logToFile "Restarting the $RSYSLOG_SERVICE service."
+	$SUDO service $RSYSLOG_SERVICE restart 2>/dev/null
+	if [ $? -ne 0 ]; then
+		logToFile "WARNING: $RSYSLOG_SERVICE did not restart gracefully. Please restart $RSYSLOG_SERVICE manually."
+		exit $WARNING
+	fi
+}
+
+checkForRsyslog()
+{
+	if [ -f /etc/init.d/$RSYSLOG_SERVICE ]; then
+		logToFile "INFO: $RSYSLOG_SERVICE is present as service."
+	elif [ -f /usr/lib/systemd/system/$RSYSLOG_SERVICE.service ]; then
+		logToFile "INFO: $RSYSLOG_SERVICE is present as service."
+	else
+		logToFile "ERROR: $RSYSLOG_SERVICE is not present as service."
+		exit $FAILURE
+	fi
+
+	if [ $(ps -A | grep "$RSYSLOG_SERVICE" | wc -l) -eq 0 ]; then
+		logToFile "INFO: $RSYSLOG_SERVICE is not running. Attempting to start service."
+		$SUDO service $RSYSLOG_SERVICE start 2>/dev/null
+	fi
+}
+
+#check if minimum version of rsyslog required to configure rsyslog is met
+checkIfMinVersionOfRsyslog()
+{
+	RSYSLOG_VERSION=$($RSYSLOGD -version | grep "$RSYSLOGD")
+	RSYSLOG_VERSION=${RSYSLOG_VERSION#* }
+	RSYSLOG_VERSION=${RSYSLOG_VERSION%,*}
+	RSYSLOG_VERSION=${RSYSLOG_VERSION%(*}
+	RSYSLOG_VERSION=$RSYSLOG_VERSION | tr -d " "
+	if [ $(compareVersions $RSYSLOG_VERSION $MIN_RSYSLOG_VERSION 3) -lt 0 ]; then
+		logToFile "ERROR: Min rsyslog version required is 5.8.0."
+		exit $FAILURE
+	fi
+}
+
+
+main(){
+	isRootUser
+	getOsDetails
+	checkIfSelinuxServiceEnforced
+	checkForRsyslog
+	checkIfMinVersionOfRsyslog
+	createRsyslogDir
+	confFileChanges  $SITE24X7_HOST $SITE24X7_SYSLOG_PORT
+	restartRsyslog
+	exit $SUCCESS
+}
+
+main

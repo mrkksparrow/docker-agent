@@ -1,0 +1,311 @@
+{
+  "hadoop_namenode": {
+    "register_api": {
+      "api": [
+        "/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo",
+        "/jmx?qry=Hadoop:service=NameNode,name=JvmMetrics",
+        "/jmx?qry=Hadoop:service=NameNode,name=NameNodeStatus"
+      ],
+      "output_tag": "register"
+    },
+    "metrics_api": {
+      "name_node_jvm_metrics": {
+        "api": "/jmx?qry=Hadoop:service=NameNode,name=JvmMetrics",
+        "output_tag": "jvm_metrics"
+      },
+      "name_node_status": {
+        "api": "/jmx?qry=Hadoop:service=NameNode,name=NameNodeStatus",
+        "output_tag": "node_status"
+      },
+      "name_node_info": {
+        "api": "/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo",
+        "output_tag": "node_info"
+      },
+      "fs_name_state": {
+        "api": "/jmx?qry=Hadoop:service=NameNode,name=FSNamesystemState",
+        "output_tag": "fs_name_state"
+      }
+    },
+    "perf_data": {
+      "HADOOP": {
+        "metrics": {
+          "availability": {
+            "value": "1"
+          },
+          "ct": {
+            "value": "AgentUtil.getTimeInMillis()",
+            "expr_for_ct": "true"
+          },
+          "ndd": {
+            "value": "NumDeadDataNodes"
+          },
+          "nld": {
+            "value": "NumLiveDataNodes"
+          },
+          "type": {
+            "value": "HADOOP"
+          },
+          "mid": {
+            "config_obj": "ClusterId",
+            "value": -1
+          }
+        }
+      },
+      "HADOOP_NAMENODE": {
+        "metrics": {
+          "availability": {
+            "value": 1
+          },
+          "mid": {
+            "config_obj": "tag.Hostname",
+            "value": -1
+          },
+          "ct": {
+            "value": "AgentUtil.getTimeInMillis()",
+            "expr_for_ct": "true"
+          },
+          "bt": {
+            "value": "BlocksTotal"
+          },
+          "cpr": {
+            "value": "CapacityRemaining",
+            "eval": "round(CapacityRemaining/(1024*1024*1024), 2)"
+          },
+          "ft": {
+            "value": "FilesTotal"
+          },
+          "mo": {
+            "value": "MaxObjects"
+          },
+          "tl": {
+            "value": "TotalLoad"
+          },
+          "pr": {
+            "value": "PendingReplicationBlocks"
+          },
+          "ur": {
+            "value": "UnderReplicatedBlocks"
+          },
+          "sr": {
+            "value": "ScheduledReplicationBlocks"
+          },
+          "pd": {
+            "value": "PendingDeletionBlocks"
+          },
+          "nld": {
+            "value": "NumLiveDataNodes"
+          },
+          "ndd": {
+            "value": "NumDeadDataNodes"
+          },
+          "dcd": {
+            "value": "NumDecommissioningDataNodes"
+          },
+          "ddd": {
+            "value": "NumDecomDeadDataNodes"
+          },
+          "vft": {
+            "value": "VolumeFailuresTotal"
+          },
+          "eclt": {
+            "value": "EstimatedCapacityLostTotal"
+          },
+          "nsd": {
+            "value": "NumStaleDataNodes"
+          },
+          "nss": {
+            "value": "NumStaleStorages"
+          },
+          "ndecomld": {
+            "value": "NumDecomLiveDataNodes"
+          },
+          "ip": {
+            "value": "tag.Hostname",
+            "delimeter":".",
+            "index":0
+          },
+          "name": {
+            "value": "tag.Hostname"
+          },
+          "mhu": {
+            "value": "MemHeapUsedM"
+          },
+          "mnhu": {
+            "value": "MemNonHeapUsedM"
+          },
+          "mnhc": {
+            "value": "MemNonHeapCommittedM"
+          },
+          "lec": {
+            "value": "LogError"
+          },
+          "lwc": {
+            "value": "LogWarn"
+          },
+          "lfc": {
+            "value": "ThreadsNew"
+          },
+          "trc": {
+            "value": "ThreadsRunnable"
+          },
+          "tbc": {
+            "value": "ThreadsBlocked"
+          },
+          "twc": {
+            "value": "ThreadsWaiting"
+          },
+          "ttwc": {
+            "value": "ThreadsTimedWaiting"
+          },
+          "ttc": {
+            "value": "ThreadsTerminated"
+          },
+          "id": {
+            "value": "tag.Hostname"
+          },
+          "type": {
+            "value": "HADOOP_NAMENODE"
+          },
+          "cpu": {
+            "value": "CapacityUsed",
+            "eval": "round(CapacityUsed/(1024*1024*1024), 2)"
+          },
+          "mhc": {
+            "value": "MemHeapCommittedM"
+          },
+          "cpt": {
+            "value": "CapacityTotal",
+            "eval": "round(CapacityTotal/(1024*1024*1024), 2)"
+          }
+        }
+      },
+      "LIVE_DATANODES": {
+        "iter": "LiveNodes",
+        "iter_api": [
+          "/jmx?qry=Hadoop:name=FSDatasetState,service=DataNode",
+          "/jmx?qry=Hadoop:service=DataNode,name=JvmMetrics"
+        ],
+        "metrics": {
+          "type": {
+            "value": "HADOOP_DATANODE"
+          },
+          "ud": {
+            "value": "DfsUsed",
+            "eval": "round(DfsUsed/(1024*1024*1024), 2)"
+          },
+          "rd": {
+            "value": "Remaining",
+            "eval": "round(Remaining/(1024*1024*1024), 2)"
+          },
+          "mhu": {
+            "value": "MemHeapUsedM"
+          },
+          "cu": {
+            "value": "CacheUsed"
+          },
+          "cc": {
+            "value": "CacheCapacity"
+          },
+          "availability": {
+            "value": 1
+          },
+          "ct": {
+            "value": "AgentUtil.getTimeInMillis()",
+            "expr_for_ct": "true"
+          },
+          "fv": {
+            "value": "NumFailedVolumes"
+          },
+          "lvfd": {
+            "value": "LastVolumeFailureDate"
+          },
+          "eclt": {
+            "value": "EstimatedCapacityLostTotal",
+            "eval": "round(EstimatedCapacityLostTotal/(1024*1024*1024), 2)"
+          },
+          "cbc": {
+            "value": "NumBlocksCached"
+          },
+          "fbc": {
+            "value": "NumBlocksFailedToCache"
+          },
+          "fbu": {
+            "value": "NumBlocksFailedToUnCache"
+          },
+          "ip": {
+            "value": "tag.Hostname"
+          },
+          "name": {
+            "value": "tag.Hostname"
+          },
+          "mhc": {
+            "value": "MemHeapCommittedM"
+          },
+          "mnhu": {
+            "value": "MemNonHeapUsedM"
+          },
+          "mnhc": {
+            "value": "MemNonHeapCommittedM"
+          },
+          "lec": {
+            "value": "LogError"
+          },
+          "lwc": {
+            "value": "LogWarn"
+          },
+          "lfc": {
+            "value": "LogFatal"
+          },
+          "tnc": {
+            "value": "ThreadsNew"
+          },
+          "trc": {
+            "value": "ThreadsRunnable"
+          },
+          "tbc": {
+            "value": "ThreadsBlocked"
+          },
+          "twc": {
+            "value": "ThreadsWaiting"
+          },
+          "ttwc": {
+            "value": "ThreadsTimedWaiting"
+          },
+          "ttc": {
+            "value": "ThreadsTerminated"
+          },
+          "id": {
+            "value": "tag.Hostname"
+          },
+          "mid": {
+            "config_obj": "tag.Hostname",
+            "value": -1
+          }
+        }
+      },
+      "DEAD_DATANODES": {
+        "iter": "DeadNodes",
+        "metrics": {
+          "availability": {
+            "value": 0
+          },
+          "mid": {
+            "config_obj": "id",
+            "value": -1
+          },
+          "type": {
+            "value": "HADOOP_DATANODE"
+          },
+          "ct": {
+            "value": "AgentUtil.getTimeInMillis()",
+            "expr_for_ct": "true"
+          },
+          "id": {
+            "value": "id"
+          }
+        },
+        "pkey": "id"
+      }
+    }
+  }
+}

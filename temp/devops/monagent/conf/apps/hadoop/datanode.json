@@ -1,0 +1,126 @@
+{
+  "hadoop_datanode": {
+    "register_api": {
+      "api": [
+        "/jmx?qry=Hadoop:service=DataNode,name=DataNodeInfo",
+        "/jmx?qry=Hadoop:service=DataNode,name=JvmMetrics"
+      ],
+      "output_tag": "register"
+    },
+    "metrics_api": {
+      "data_node_jvm_metrics": {
+        "api": "/jmx?qry=Hadoop:service=DataNode,name=JvmMetrics",
+        "output_tag": "jvm_metrics"
+      },
+      "fs_name_state": {
+        "api": "/jmx?qry=Hadoop:name=FSDatasetState,service=DataNode",
+        "output_tag": "fs_name_state"
+      }
+    },
+    "perf_data": {
+      "HADOOP_DATANODE": {
+        "metrics": {
+          "type": {
+            "value": "HADOOP_DATANODE"
+          },
+          "ud": {
+            "value": "DfsUsed",
+            "eval": "round(DfsUsed/(1024*1024*1024), 2)"
+          },
+          "rd": {
+            "value": "Remaining",
+            "eval": "round(Remaining/(1024*1024*1024), 2)"
+          },
+          "mhu": {
+            "value": "MemHeapUsedM"
+          },
+          "cu": {
+            "value": "CacheUsed"
+          },
+          "cc": {
+            "value": "CacheCapacity"
+          },
+          "availability": {
+            "value": 1
+          },
+          "ct": {
+            "value": "AgentUtil.getTimeInMillis()",
+            "expr_for_ct": "true"
+          },
+          "fv": {
+            "value": "NumFailedVolumes"
+          },
+          "lvfd": {
+            "value": "LastVolumeFailureDate"
+          },
+          "eclt": {
+            "value": "EstimatedCapacityLostTotal",
+            "eval": "round(EstimatedCapacityLostTotal/(1024*1024*1024), 2)"
+          },
+          "cbc": {
+            "value": "NumBlocksCached"
+          },
+          "fbc": {
+            "value": "NumBlocksFailedToCache"
+          },
+          "fbu": {
+            "value": "NumBlocksFailedToUnCache"
+          },
+          "ip": {
+            "value": "tag.Hostname"
+          },
+          "name": {
+            "value": "tag.Hostname"
+          },
+          "mhc": {
+            "value": "MemHeapCommittedM"
+          },
+          "mnhu": {
+            "value": "MemNonHeapUsedM"
+          },
+          "mnhc": {
+            "value": "MemNonHeapCommittedM"
+          },
+          "lec": {
+            "value": "LogError"
+          },
+          "lwc": {
+            "value": "LogWarn"
+          },
+          "lfc": {
+            "value": "LogFatal"
+          },
+          "tnc": {
+            "value": "ThreadsNew"
+          },
+          "trc": {
+            "value": "ThreadsRunnable"
+          },
+          "tbc": {
+            "value": "ThreadsBlocked"
+          },
+          "twc": {
+            "value": "ThreadsWaiting"
+          },
+          "ttwc": {
+            "value": "ThreadsTimedWaiting"
+          },
+          "ttc": {
+            "value": "ThreadsTerminated"
+          },
+          "id": {
+            "value": "tag.Hostname"
+          },
+          "mid": {
+            "config_obj": "tag.Hostname",
+            "value": -1
+          },
+          "dc": {
+            "value": "Capacity",
+            "eval": "round(Capacity/(1024*1024*1024), 2)"
+          }
+        }
+      }
+    }
+  }
+}

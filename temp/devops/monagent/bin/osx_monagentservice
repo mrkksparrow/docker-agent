@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+	        <key>Label</key>
+	        <string>com.site24x7.monagentservice.plist</string>
+	        <key>ProgramArguments</key>
+	        <array>
+	                <string>/opt/site24x7/venv/bin/python</string>
+	                <string>/opt/site24x7/monagent/lib/devops/source/python3.3/src/com/manageengine/monagent/MonitoringAgent.py</string>
+	        </array>
+	        <key>RunAtLoad</key>
+	        <true/>
+	        <key>ServiceDescription</key>
+	        <string>Site24x7 OSX Server Monitoring Agent</string>
+	        <key>StandardOutPath</key>
+		    <string>/opt/site24x7/monagent.stdout.log</string>
+		    <key>StandardErrorPath</key>
+		    <string>/opt/site24x7/monagent.stderr.log</string>
+	</dict>
+</plist>

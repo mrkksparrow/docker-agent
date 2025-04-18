@@ -1,0 +1,105 @@
+{
+    "MonitorGroup": {
+        "CounterMonitors": {
+            "GroupName": "CounterMonitors",
+            "SaveFile": "False",
+            "Monitors": [
+                "Network Data",
+                "Number of Interrupts",
+                "Context Switches",
+                "Memory Statistics",
+                "CPU Cores Usage",
+                "Disk Statistics"
+            ]
+        },
+        "TopProcessMonitoring": {
+     		 "GroupName": "TopProcessMonitoring",
+			"Interval": "60",
+      		"Impl": "true"
+   		 },
+        "server_inventory": {
+			"GroupName": "server_inventory",
+			"Interval": "3600",
+			"Impl": "true"
+		},
+        "ChecksMonitoring": {
+            "GroupName": "ChecksMonitoring",
+            "Interval": "300",
+            "SaveFile": "False",
+            "Impl" : "true",
+            "Monitors" : [
+            	"URL",
+            	"Port",
+            	"File"
+            ]
+        },
+        "RootCauseAnalysis": {
+            "GroupName": "RootCauseAnalysis",
+            "Interval": "60",
+            "SaveFile": "single",
+            "Impl": "true",
+            "Monitors": [
+                "RCA CPU Utilization",
+                "RCA Disk Utilization",
+                "RCA Memory Utilization",
+                "RCA Adapter Details",
+                "RCA Network Statistics",
+                "RCA Disk Statistics",
+                "User Sessions",
+                "Disk Errors",
+                "Dmesg Errors",
+                "Uptime Details"
+            ]
+        },
+        "Monitoring": {
+            "GroupName": "Monitoring",
+            "Interval": "300",
+            "SaveFile": "False",
+            "AppMonitors" : [ ],
+            "Monitors": [
+                "CPU Utilization",
+                "Disk Utilization",
+                "Memory Utilization",
+                "Number Of Cores",
+                "OS Architecture",
+                "Network Data",
+                "Number of Interrupts",
+                "Context Switches",
+                "Memory Statistics",
+                "Disk Statistics",
+                "CPU Cores Usage",
+                "PROCESS_AND_SERVICE_DETAILS",
+                "System Stats",
+                "Process Queue",
+                "Login Count"
+            ]
+        },
+        "CPUMonitoring":{
+        	"GroupName": "CPUMonitoring",
+        	"SaveFile": "False",
+            "Monitors": [
+            	"CPU Utilization"
+            ]	
+        },
+        "ProcessMonitoring":{
+        	"GroupName": "ProcessMonitoring",
+        	"Interval": "60",
+        	"Impl": "true"
+    	},
+    	"PluginMonitoring":{
+        	"GroupName": "PluginMonitoring",
+        	"Interval": "300",
+        	"Impl": "true"
+    	},
+        "EventLogMonitoring": {
+        	"GroupName": "EventLogMonitoring",
+        	"Interval": "300",
+        	"SaveFile": "multiple",
+        	"Impl": "true",
+        	"Monitors": [
+        		"syslogs"
+        	]  
+        
+        }
+    }
+}

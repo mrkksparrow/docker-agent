@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MonitorsXml>
+	<aixMonitors>
+		<Monitor Id="Disk_Utilization" script="true" command="aix_script.sh" commandArgs="disk_details" parseTag="disk details" interval="30" parseAll="true" parseImpl="DISK_AIX_IMPL">
+			<Entity Id="Name" token="1" delimiter="--" name="Name"/>
+			<Entity Id="Used_Percentage" token="2" delimiter="--" name="Used_Percentage"/>
+			<Entity Id="Used_KB" token="3" delimiter="--" name="Used_KB"/>
+			<Entity Id="Size_KB" token="4" delimiter="--" name="Size_KB"/>
+		</Monitor>
+		<Monitor Id="Cpu_Utilization" logOutput="true" script="true" command="aix_script.sh" commandArgs="cpu_util" parseTag="cpu_util" bufferSize="1" interval="30" parseImpl="CPU_AIX_IMPL">
+			<Entity Id="cpu_idle" parseLine="7" token="16" delimiter=" " name="cpu_idle"/>
+			<Entity Id="cpu_wait" parseLine="7" token="17" delimiter=" " name="cpu_wait"/>
+			<Entity Id="cpu_user" parseLine="7" token="14" delimiter=" " name="cpu_user"/>
+			<Entity Id="cpu_sys" parseLine="7" token="15" delimiter=" " name="cpu_sys"/>
+			<Entity Id="interrupts" parseLine="7" token="11" delimiter=" " name="interrupts"/>
+			<Entity Id="ctxtsw" parseLine="7" token="13" delimiter=" " name="ctxtsw"/>
+			<Entity Id="pin" parseLine="7" token="6" delimiter=" " name="pin"/>
+			<Entity Id="pout" parseLine="7" token="7" delimiter=" " name="pout"/>
+		</Monitor>
+		<Monitor Id="Memory_Utilization" logOutput="true" script="true" command="aix_script.sh" commandArgs="mem_util" parseTag="mem_util" bufferSize="1" interval="30" parseImpl="MEM_AIX_IMPL">
+			<Entity Id="tvirm" parseLine="4" token="2" delimiter=" " name="tvirm"/>
+			<Entity Id="uvirm" parseLine="4" token="3" delimiter=" " name="uvirm"/>
+			<Entity Id="fvirm" parseLine="4" token="4" delimiter=" " name="fvirm"/>
+			<Entity Id="available" parseLine="4" token="7" delimiter=" " name="available"/>
+			<Entity Id="tvism" parseLine="5" token="3" delimiter=" " name="tvism"/>
+			<Entity Id="uvism" parseLine="5" token="4" delimiter=" " name="uvism"/>
+		</Monitor>
+		<Monitor Id="Metrics" logOutput="false" script="true" command="aix_script.sh" commandArgs="disk_err" parseTag="disk errors" parse="false" bufferSize="1" interval="30" parseImpl="DIRECT_IMPL"/>
+		<!-- <Monitor Id="Ps_Util_Stats" logOutput="false" script="true" command="aix_script.sh" commandArgs="disk_err" parseTag="disk errors" parse="false" bufferSize="1" interval="30" parseImpl="Ps_Util_Stats_Impl"/>-->
+       </aixMonitors>
+</MonitorsXml>

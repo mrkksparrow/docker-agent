@@ -1,0 +1,251 @@
+#!/bin/bash
+PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:$PATH
+SUCCESS=0
+FAILURE=1
+SCRIPT_NAME=$(basename $0)
+MON_AGENT_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MON_AGENT_HOME=$(echo "${MON_AGENT_HOME%/*}")
+MON_AGENT_UPGRADE_DIR=$MON_AGENT_HOME/upgrade
+MON_AGENT_UPGRADE_LIB_DIR=$MON_AGENT_UPGRADE_DIR/lib
+MON_AGENT_UPGRADE_CONF_DIR=$MON_AGENT_UPGRADE_DIR/conf
+MON_AGENT_BACKUP_DIR=$MON_AGENT_HOME/backup
+MON_AGENT_BACKUP_LIB_DIR=$MON_AGENT_BACKUP_DIR/lib
+MON_AGENT_BACKUP_CONF_DIR=$MON_AGENT_BACKUP_DIR/conf
+MON_AGENT_BIN_DIR=$MON_AGENT_HOME/bin
+MON_AGENT_TEMP_DIR=$MON_AGENT_HOME/temp
+MON_AGENT_UPGRADE_NOTIFIER=$MON_AGENT_TEMP_DIR/upgrade_notifier
+WATCHDOG_AGENT_UPGRADE_NOTIFIER=$MON_AGENT_UPGRADE_DIR/upgrade.txt
+MON_AGENT_LIB_DIR=$MON_AGENT_HOME/lib
+MON_AGENT_CONF_DIR=$MON_AGENT_HOME/conf
+MON_AGENT_WATCHDOG_BIN=$MON_AGENT_BIN_DIR/monagentwatchdog
+MON_AGENT_PROG_NAME=Site24x7Agent
+MON_AGENT_WATCHDOG_PROG_NAME=Site24x7AgentWatchdog
+chmod 755 $MON_AGENT_WATCHDOG_BIN
+UPGRADE_LOG_FILE=$MON_AGENT_HOME/logs/upgrade.txt
+THIRTY_TWO_BIT='32bit'
+SIXTY_FOUR_BIT='64bit'
+MSG="default value"
+OS_BINARY_TYPE=""
+AGENT_VERSION=""
+USER_NAME=""
+AGENT_UPGRADE_TAR_FILE=""
+UPGRADE_SUPPORT="1"
+AGENT_VERSION="$(cat $MON_AGENT_HOME/bno.txt)"
+
+format_version() {
+        echo "$@" | awk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }';
+}
+
+detectLibc(){
+	libc_version="$(ldd --version 2>/dev/null | awk 'NR==1{ print $NF }')"
+	if [ "$libc_version" != "" ]; then
+		if [ "$(format_version $libc_version)" -lt "$(format_version 2.17)" ]; then
+			printf "Libc vesion $libc_version which is less than 2.17 \n" >> $UPGRADE_LOG_FILE
+			UPGRADE_SUPPORT="0"
+			if [ -f $WATCHDOG_AGENT_UPGRADE_NOTIFIER ]; then
+              rm -rf $WATCHDOG_AGENT_UPGRADE_NOTIFIER 2>&1>/dev/null
+      fi
+      rm -rf $MON_AGENT_UPGRADE_DIR/* 2>&1>/dev/null
+			$MON_AGENT_WATCHDOG_BIN start 2>&1 >> $UPGRADE_LOG_FILE
+      sleep 6
+      isWatchdogRunning
+      RETVAL=$?
+      if [ $RETVAL -eq $FAILURE ]; then
+        MSG="FAILURE | Watchdog start failed"
+      else
+      		MSG="SUCCESS | Watchdog start success"
+      fi
+      printf "$(date) $MSG \n" >> $UPGRADE_LOG_FILE
+		fi
+	fi
+}
+
+check_module_settings(){
+    if [[ $AGENT_VERSION -gt 1800 ]]; then
+      if [ ! -d $MON_AGENT_LIB_DIR/lib/python3.3/com/manageengine/monagent/automation ]; then
+        rm -rf $MON_AGENT_UPGRADE_DIR/lib/lib/com/manageengine/monagent/automation
+      fi
+    fi
+    if [[ $AGENT_VERSION -gt 1810 ]]; then
+      if [ ! -f $MON_AGENT_CONF_DIR/heartbeat.zip ]; then
+        rm -rf $MON_AGENT_UPGRADE_DIR/conf/heartbeat.zip
+      fi
+      if [ ! -f $MON_AGENT_CONF_DIR/applications.zip ]; then
+        rm -rf $MON_AGENT_UPGRADE_DIR/conf/applications.zip
+      fi
+      if [ ! -f $MON_AGENT_CONF_DIR/dc.zip ]; then
+        rm -rf $MON_AGENT_UPGRADE_DIR/conf/dc.zip
+      fi
+      if [ ! -f $MON_AGENT_CONF_DIR/resource_check.zip ]; then
+        rm -rf $MON_AGENT_UPGRADE_DIR/conf/resource_check.zip
+      fi
+      if [ ! -f $MON_AGENT_CONF_DIR/process_check.zip ]; then
+        rm -rf $MON_AGENT_UPGRADE_DIR/conf/process_check.zip
+      fi
+      if [ ! -f $MON_AGENT_CONF_DIR/mgmt_axn.zip ]; then
+        rm -rf $MON_AGENT_UPGRADE_DIR/conf/mgmt_axn.zip
+      fi
+    fi
+    if [ ! -d $MON_AGENT_LIB_DIR/lib/python3.3/com/manageengine/monagent/plugins ]; then
+      rm -rf $MON_AGENT_UPGRADE_DIR/lib/lib/com/manageengine/monagent/plugins
+    fi
+}
+
+remove_so_files(){
+		rm -rf $MON_AGENT_LIB_DIR/lib*
+		rm -rf $MON_AGENT_LIB_DIR/Site24x7AgentWatchdog
+		rm -rf $MON_AGENT_LIB_DIR/Site24x7MetricsAgent
+}
+
+copy_new_lib(){
+    cp -f $MON_AGENT_UPGRADE_DIR/bin/monagentwatchdog $MON_AGENT_BIN_DIR/
+    cp -f $MON_AGENT_UPGRADE_DIR/bin/monagent $MON_AGENT_BIN_DIR/
+		cp -rf $MON_AGENT_UPGRADE_LIB_DIR/lib* $MON_AGENT_LIB_DIR/
+		cp $MON_AGENT_UPGRADE_LIB_DIR/Site24x7AgentWatchdog $MON_AGENT_LIB_DIR/
+		cp $MON_AGENT_UPGRADE_LIB_DIR/Site24x7MetricsAgent $MON_AGENT_LIB_DIR/
+		cp -rf $MON_AGENT_UPGRADE_CONF_DIR/* $MON_AGENT_CONF_DIR/
+}
+
+change_switch_value(){
+	sed -i "/MON_AGENT_WATCHDOG_SWITCH=\"/c\MON_AGENT_WATCHDOG_SWITCH=$1" $MON_AGENT_BIN_DIR/monagentwatchdog
+	sed -i "/MON_AGENT_SWITCH=\"/c\MON_AGENT_SWITCH=$1" $MON_AGENT_BIN_DIR/monagent
+}
+
+checkNonRoot(){
+	if [[ "$USER_NAME" == *"site24x7-agent"* ]]; then
+		change_switch_value 1
+	else
+		change_switch_value 0
+	fi
+}
+
+copy_backup_lib(){
+    cp -f $MON_AGENT_BACKUP_DIR/bin/monagentwatchdog $MON_AGENT_BIN_DIR/
+    cp -f $MON_AGENT_BACKUP_DIR/bin/monagent $MON_AGENT_BIN_DIR/
+		cp -rf $MON_AGENT_BACKUP_LIB_DIR/lib* $MON_AGENT_LIB_DIR/
+		cp $MON_AGENT_BACKUP_LIB_DIR/Site24x7AgentWatchdog $MON_AGENT_LIB_DIR/
+		cp -rf $MON_AGENT_BACKUP_CONF_DIR/* $MON_AGENT_CONF_DIR/
+}
+
+isWatchdogRunning(){
+	PID=$(ps -eo pid,comm,args | grep $MON_AGENT_WATCHDOG_PROG_NAME| grep -v grep | awk -F ' ' '{print $1}')
+	if [ "$PID" == "" ]; then 
+	    return $FAILURE
+	else	    
+    		return $SUCCESS
+	fi        
+
+}
+
+getHardwarePlatform() {		
+	if [ "`which file`" = "" ]; then		
+	    if [ `/usr/bin/getconf LONG_BIT` = "64" ]; then
+		    OS_BINARY_TYPE="$SIXTY_FOUR_BIT"
+		elif [ `/usr/bin/getconf LONG_BIT` = "32" ]; then
+		    OS_BINARY_TYPE="$THIRTY_TWO_BIT"
+		fi
+	else
+		if /usr/bin/file /sbin/init | grep 'ELF 64-bit' &>/dev/null; then
+		    OS_BINARY_TYPE="$SIXTY_FOUR_BIT"
+		elif /usr/bin/file /sbin/init | grep 'ELF 32-bit' &>/dev/null; then
+		    OS_BINARY_TYPE="$THIRTY_TWO_BIT"
+		elif [ `/usr/bin/getconf LONG_BIT` = "64" ]; then
+		    OS_BINARY_TYPE="$SIXTY_FOUR_BIT"
+		elif [ `/usr/bin/getconf LONG_BIT` = "32" ]; then
+		    OS_BINARY_TYPE="$THIRTY_TWO_BIT"
+		fi
+	fi	
+}
+
+check_agent_user(){
+  USER_NAME="$(cat $MON_AGENT_TEMP_DIR/lockfile.txt)"
+  if [[ "$USER_NAME" == *"root"* ]]; then
+    printf "$(date) Agent User :: root | Changing nologin entry \n" >> $UPGRADE_LOG_FILE
+    sed -i 's|/opt/site24x7/monagent:/bin/bash|/opt/site24x7/monagent:/sbin/nologin|' /etc/passwd &>/dev/null
+    printf "$(date) nologin changed :: $(cat /etc/passwd | grep site24x7) \n" >> $UPGRADE_LOG_FILE
+  elif [[ "$USER_NAME" == *"site24x7-agent"* ]]; then
+    printf "$(date) Agent User :: site24x7-agent | skipping nologin entry \n" >> $UPGRADE_LOG_FILE
+  else
+    printf "$(date) Agent User :: $USER_NAME | skipping nologin entry \n" >> $UPGRADE_LOG_FILE
+  fi
+}
+
+update_service_manager(){
+  if [ -f /etc/systemd/system/site24x7monagent.service ]; then
+    printf '[Unit]
+Description=Site24x7 Linux Server Monitoring
+After=network.target
+
+[Service]
+User=
+Group=
+ExecStart=/opt/site24x7/monagent/bin/monagentservice start
+ExecStop=/opt/site24x7/monagent/bin/monagentservice stop
+Type=forking
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+' > /etc/systemd/system/site24x7monagent.service
+    if [[ "$USER_NAME" == *"root"* ]]; then
+        sed -i '/User=/c\User=root' /etc/systemd/system/site24x7monagent.service
+        sed -i '/Group=/c\Group=root' /etc/systemd/system/site24x7monagent.service
+    elif [[ "$USER_NAME" == *"site24x7-agent"* ]]; then
+        sed -i '/User=/c\User=site24x7-agent' /etc/systemd/system/site24x7monagent.service
+        sed -i '/Group=/c\Group=site24x7-agent' /etc/systemd/system/site24x7monagent.service
+    fi
+    systemctl daemon-reload 2>&1>/dev/null
+  fi
+}
+
+startWatchdog(){
+	$MON_AGENT_WATCHDOG_BIN start 2>&1 >> $UPGRADE_LOG_FILE
+	sleep 6
+	isWatchdogRunning
+	RETVAL=$?
+	if [ $RETVAL -eq $FAILURE ]; then
+		MSG="FAILURE | Watchdog new upgrade failed"
+		remove_so_files
+		copy_backup_lib
+		$MON_AGENT_WATCHDOG_BIN start 2>&1 >> $UPGRADE_LOG_FILE
+		sleep 2
+		isWatchdogRunning
+		RETVAL=$?
+		if [ $RETVAL -eq $FAILURE ]; then
+			MSG="FAILURE | Watchdog backup not running and Watchdog new upgrade failed"
+		else
+			MSG="FAILURE | Watchdog backup running but Watchdog new upgrade failed"
+		fi
+	else
+		MSG="SUCCESS | Watchdog new upgrade success"
+	fi
+}
+
+notifySite24x7Agent(){
+	printf "$(date) $MSG \n" >> $UPGRADE_LOG_FILE
+	printf "$MSG" > $MON_AGENT_UPGRADE_NOTIFIER
+}
+
+notifySite24x7Watchdog(){
+  AGENT_UPGRADE_TAR_FILE="Site24x7_Linux_"$OS_BINARY_TYPE"_Agent_Upgrade.tar.gz"
+  printf "$AGENT_UPGRADE_TAR_FILE" > $WATCHDOG_AGENT_UPGRADE_NOTIFIER
+}
+
+
+printf "$(date) Upgrade started by daemon \n" >> $UPGRADE_LOG_FILE
+detectLibc
+if [ $UPGRADE_SUPPORT == "1" ];then
+  getHardwarePlatform
+  check_agent_user
+  update_service_manager
+  if [[ $AGENT_VERSION -lt 1970 && "$OS_BINARY_TYPE" == "$SIXTY_FOUR_BIT" ]]; then
+    check_module_settings
+  fi
+  remove_so_files
+  copy_new_lib
+  checkNonRoot
+  startWatchdog
+  notifySite24x7Agent
+  notifySite24x7Watchdog
+fi
+

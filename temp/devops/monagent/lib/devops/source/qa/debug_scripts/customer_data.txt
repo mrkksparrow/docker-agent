@@ -1,0 +1,36 @@
+# Partition from customer when there is no non-numerical partition xvda
+
+major minor  #blocks  name
+
+202        1   25165824 xvda1
+202        2    1048576 xvda2
+
+# Top command output from customer geardude@online.de for Ubuntu 13.10 saucy x64
+
+root:~# top -b -d1 -n2 | grep -i "Cpu(s)"
+%Cpu(s):  0,1 us,  0,0 sy,  0,0 ni, 99,8 id,  0,1 wa,  0,0 hi,  0,0 si,  0,0 st
+%Cpu(s):  0,0 us,  0,0 sy,  0,0 ni,100,0 id,  0,0 wa,  0,0 hi,  0,0 si,  0,0 st
+root:~#
+
+Ubuntu raring (English locale => dot):
+%Cpu(s):  2.1 us,  0.2 sy,  0.0 ni, 91.1 id,  0.7 wa,  0.0 hi,  0.2 si,  0.0 st
+%Cpu(s):  2.1 us,  0.2 sy,  0.0 ni, 99.1 id,  0.7 wa,  0.0 hi,  0.2 si,  0.0 st
+ 
+Ubuntu 13.10 saucy (German locale => comma):
+%Cpu(s):  0,1 us,  0,0 sy,  0,0 ni, 92,2 id,  0,1 wa,  0,0 hi,  0,0 si,  0,0 st
+%Cpu(s):  0,1 us,  0,0 sy,  0,0 ni, 99,2 id,  0,1 wa,  0,0 hi,  0,0 si,  0,0 st
+ 
+Ubuntu 14.04 trusty tahr (German locale => comma):
+%Cpu(s):  0,5 be,  0,2 sy,  0,0 ni, 90,3 un,  0,0 wa,  0,0 hi,  0,0 si,  0,0 st
+%Cpu(s):  0,5 be,  0,2 sy,  0,0 ni, 99,3 un,  0,0 wa,  0,0 hi,  0,0 si,  0,0 st
+ 
+Ubuntu 12.04.4 LTS precise (English locale => dot):
+Cpu(s):  0.5%us,  0.0%sy,  0.0%ni, 95.4%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu(s):  0.5%us,  0.0%sy,  0.0%ni, 99.4%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+
+Cpu(s):  0.0%us,  0.0%sy,  0.0%ni,100.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu(s):  0.0%us,  0.0%sy,  0.0%ni,100.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+
+%Cpu(s):  1.5 us,  1.1 sy,  0.0 ni, 86.8 id, 10.3 wa,  0.0 hi,  0.3 si,  0.0 st
+%Cpu(s):  1.5 us,  1.1 sy,  0.0 ni, 86.8 id, 10.3 wa,  0.0 hi,  0.3 si,  0.0 st
+

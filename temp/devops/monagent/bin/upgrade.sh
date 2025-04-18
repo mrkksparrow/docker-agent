@@ -1,0 +1,107 @@
+#!/bin/bash
+SCRIPT_NAME=$(basename $0)
+PRODUCT_NAME='Site24x7'
+PRODUCT_NAME_UPPERCASE='SITE24X7'
+PRODUCT_NAME_LOWERCASE='site24x7'
+MON_AGENT_NAME='monagent'
+MON_AGENT_GROUP=$PRODUCT_NAME_LOWERCASE'-group'
+MON_AGENT_USER=$PRODUCT_NAME_LOWERCASE'-agent'
+MON_AGENT_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MON_AGENT_HOME=$(echo "${MON_AGENT_HOME%/*}")
+MON_AGENT_BIN_DIR=$MON_AGENT_HOME/bin
+MON_AGENT_LOG_DIR=$MON_AGENT_HOME/logs
+MON_AGENT_TEMP_DIR=$MON_AGENT_HOME/temp
+MON_AGENT_TEMP_LOCKFILE=$MON_AGENT_TEMP_DIR/lockfile.txt
+MON_AGENT_UPGRADE_SCRIPT_LOG_FILE_NAME='upgrade_script.txt'
+MON_AGENT_BIN_PROFILE_FILE_NAME='profile.sh'
+MON_AGENT_BIN_PROFILE_ENV_FILE_NAME='profile.env.sh'
+MON_AGENT_PROFILE_FILE_NAME='.profile'
+MON_AGENT_PROFILE_ENV_FILE_NAME='.profile.env'
+MON_AGENT_BOOT_SERVICE_FILE_NAME='monagentservice'
+MON_AGENT_BOOT_FILE_NAME=$PRODUCT_NAME_LOWERCASE'monagent'
+MON_AGENT_UPGRADE_SCRIPT_LOG_FILE=$MON_AGENT_LOG_DIR/$MON_AGENT_UPGRADE_SCRIPT_LOG_FILE_NAME
+MON_AGENT_BIN_PROFILE=$MON_AGENT_BIN_DIR/$MON_AGENT_BIN_PROFILE_FILE_NAME
+MON_AGENT_BIN_PROFILE_ENV=$MON_AGENT_BIN_DIR/$MON_AGENT_BIN_PROFILE_ENV_FILE_NAME
+MON_AGENT_PROFILE=$MON_AGENT_HOME/$MON_AGENT_PROFILE_FILE_NAME
+MON_AGENT_PROFILE_ENV=$MON_AGENT_HOME/$MON_AGENT_PROFILE_ENV_FILE_NAME
+MON_AGENT_BIN_BOOT_SERVICE_FILE=$MON_AGENT_BIN_DIR/$MON_AGENT_BOOT_SERVICE_FILE_NAME
+MON_AGENT_INIT_FILE=/etc/init.d/$MON_AGENT_BOOT_FILE_NAME
+export SHELL=/bin/bash
+export TERM=xterm
+
+isRootUser() {
+	if [ "$(id -u)" != "0" ]; then
+		cat <<ERROR_MESSAGE
+
+WARNING:
+	Only root and users with sudo permission are allowed to execute this script
+	
+ERROR_MESSAGE
+		exit 1
+	fi
+}
+
+#isRootUser
+
+MON_AGENT_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MON_AGENT_HOME=$(echo "${MON_AGENT_HOME%/*}")
+if [ ! -f $MON_AGENT_PROFILE_ENV ]; then	
+	echo "$MON_AGENT_PROFILE_ENV does not exist. Hence Quiting!!"
+	exit 1
+fi
+
+. $MON_AGENT_PROFILE_ENV
+
+createNecessaryDirs() {
+	if [ ! -d $MON_AGENT_LOG_DIR ]; then
+        mkdir -p $MON_AGENT_LOG_DIR
+        chown -vR $MON_AGENT_USER:$MON_AGENT_GROUP $MON_AGENT_LOG_DIR
+		chmod -vR 700 $MON_AGENT_LOG_DIR	
+    fi
+}
+
+setPermissions() {
+	chown -R $MON_AGENT_USER:$MON_AGENT_GROUP $MON_AGENT_HOME >> $MON_AGENT_UPGRADE_SCRIPT_LOG_FILE 2>&1
+	chmod -R 700 $MON_AGENT_HOME >> $MON_AGENT_UPGRADE_SCRIPT_LOG_FILE 2>&1
+}
+
+version_10_0_5() {
+	log "$MON_AGENT_UPGRADE_SCRIPT_LOG_FILE" "============================ Executing upgrade script for version 10.0.5 ================================" "$PRINT"
+	mv -vf $MON_AGENT_BIN_PROFILE $MON_AGENT_PROFILE
+	mv -vf $MON_AGENT_BIN_PROFILE_ENV $MON_AGENT_PROFILE_ENV
+}
+
+version_12_0_0() {
+	log "$MON_AGENT_UPGRADE_SCRIPT_LOG_FILE" "============================ Executing upgrade script for version 12.0.0 ================================" "$PRINT"
+	cp -vf $MON_AGENT_BIN_BOOT_SERVICE_FILE $MON_AGENT_INIT_FILE >> $MON_AGENT_UPGRADE_SCRIPT_LOG_FILE 2>&1
+	chown -vR $MON_AGENT_USER:$MON_AGENT_GROUP $MON_AGENT_INIT_FILE 2>&1
+}
+
+upgrade() {
+	version_10_0_5
+	version_12_0_0
+}
+
+change_switch_value(){
+	sed -i "/MON_AGENT_WATCHDOG_SWITCH=\"/c\MON_AGENT_WATCHDOG_SWITCH=$1" $MON_AGENT_WATCHDOG_BIN_BOOT_FILE
+	sed -i "/MON_AGENT_SWITCH=\"/c\MON_AGENT_SWITCH=$1" $MON_AGENT_BIN_BOOT_FILE
+}
+
+checkNonRoot(){
+	user_value="$(cat $MON_AGENT_TEMP_LOCKFILE)"
+	if [ "$user_value" == "site24x7-agent" ]; then
+		change_switch_value 1
+	else
+		change_switch_value 0
+	fi
+}
+
+main() {
+	createNecessaryDirs
+	upgrade
+	setPermissions
+	checkNonRoot
+}
+
+main
+

@@ -1,0 +1,86 @@
+{
+    "us": [
+         "plus.site24x7.com",
+        "plus2.site24x7.com",
+        [],
+        "staticdownloads.site24x7.com",
+        "dms.zoho.com"
+    ],
+    "eu": [
+        "plus.site24x7.eu",
+        "plus2.site24x7.eu",
+        [],
+        "staticdownloads.site24x7.eu",
+        "dms.zoho.eu"
+    ],
+    "cn": [
+        "plus.site24x7.cn",
+        "plus2.site24x7.cn",
+        [],
+        "staticdownloads.site24x7.cn",
+        "dms.zoho.cn"
+    ],
+    "au": [
+        "plus.site24x7.net.au",
+        "plus2.site24x7.net.au",
+        [],
+        "staticdownloads.site24x7.net.au",
+        "dms.zoho.net.au"
+    ],
+    "in": [
+        "plus.site24x7.in",
+        "plus2.site24x7.in",
+        [],
+        "staticdownloads.site24x7.in",
+        "dms.zoho.in"
+    ],
+    "gd": [
+        "gdplus.site24x7.com",
+        "gdplus2.site24x7.com",
+        [],
+        "staticdownloads.site24x7.com",
+        "dms.zoho.com"
+    ],
+    "jp": [
+        "plus.site24x7.jp",
+        "plus2.site24x7.jp",
+        [],
+        "staticdownloads.site24x7.jp",
+        "dms.zoho.jp"
+    ],
+    "in_hd": [
+        "hdplus.site24x7.in",
+        "hdplus2.site24x7.in",
+        [],
+        "staticdownloads.site24x7.in",
+        "dms.zoho.in"
+    ],
+    "ca": [
+        "plus.site24x7.ca",
+        "plus2.site24x7.ca",
+        [],
+        "staticdownloads.site24x7.ca",
+        "dms.zoho.ca"
+    ],
+    "uk": [
+        "plus.site24x7.uk",
+        "plus2.site24x7.uk",
+        [],
+        "staticdownloads.site24x7.uk",
+        "dms.zoho.uk"
+    ],
+    "sa": [
+        "plus.site24x7.sa",
+        "plus2.site24x7.sa",
+        [],
+        "staticdownloads.site24x7.sa",
+        "dms.zoho.sa"
+    ],
+    "ae": [
+        "plus.site24x7.ae",
+        "plus2.site24x7.ae",
+        [],
+        "staticdownloads.site24x7.ae",
+        "dms.zoho.ae"
+    ]
+}

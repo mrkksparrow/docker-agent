@@ -1,0 +1,14 @@
+[Unit]
+Description=Site24x7 Linux Server Monitoring
+After=network.target
+
+[Service]
+User=
+Group=
+ExecStart=/opt/site24x7/monagent/bin/monagentservice start
+ExecStop=/opt/site24x7/monagent/bin/monagentservice stop
+Type=forking
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

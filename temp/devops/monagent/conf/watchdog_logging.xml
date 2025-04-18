@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LoggingXml>
+    <LoggingConfig redirectStd="True">
+        <Logger name="STDOUT" fileName="watchdogout" fileSize="2000000" fileCount="3" level="3"/>
+        <Logger name="STDERR" fileName="watchdogerr" fileSize="2000000" fileCount="3" level="3"/>
+    </LoggingConfig>
+</LoggingXml>
+<!-- $Id$ -->

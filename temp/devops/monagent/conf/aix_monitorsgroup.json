@@ -1,0 +1,15 @@
+{
+    "MonitorGroup": {
+        "Monitoring": {
+            "GroupName": "Monitoring",
+            "Interval": "300",
+            "SaveFile": "False",
+            "Monitors": [
+                "Disk_Utilization",
+                "Memory_Utilization",
+                "Cpu_Utilization",
+                "Metrics"
+            ]
+        }
+        }
+}

@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Queries>
+    <instance Name="SGA_PGA" Query="select name,round(value,2) value  from v$pgastat where name in ('total PGA allocated', 'total freeable PGA memory','maximum PGA allocated','total PGA inuse','process count','max processes count','cache hit percentage','PGA memory freed back to OS') UNION ALL (select name,round(bytes,2) value from v$sgainfo UNION ALL select name,value bytes from v$sga where name ='Variable Size') UNION ALL (select metric_name name,decode(metric_name,'SQL Service Response Time',round(value*10,2),round(value,2)) value from v$sysmetric where metric_name in ('Average Active Sessions','Buffer Cache Hit Ratio','Cursor Cache Hit Ratio','Database CPU Time Ratio','Database Wait Time Ratio','Disk Sort Per Sec','Enqueue Timeouts Per Sec','GC CR Block Received Per Second','Global Cache Blocks Corrupted','Global Cache Blocks Lost','Hard Parse Count Per Sec','Hard Parse Count Per Txn','Library Cache Hit Ratio','Logons Per Sec','Long Table Scans Per Sec','Memory Sorts Ratio','Parse Failure Count Per Sec','Parse Failure Count Per Txn','Physical Reads Per Sec','Physical Writes Per Sec','Rows Per Sort','SQL Service Response Time','Session Count','Session Limit %','Shared Pool Free %','Soft Parse Ratio','Temp Space Used','Total Parse Count Per Sec','Total Parse Count Per Txn','Total Sorts Per User Call','User Rollbacks Per Sec','Average Synchronous Single-Block Read Latency','Redo Allocation Hit Ratio','Current OS Load','Streams Pool Usage Percentage') and intsize_csec =(select max(intsize_csec) from v$sysmetric)) union all (select val.name,nvl(s.bytes,0) value from (select name,bytes from v$sgastat where pool='shared pool' and name in ('sql area','library cache','dictionary cache') and con_id=0) s right outer join (select 'sql area' name from dual union all select 'library cache' name from dual union all select 'dictionary cache' name from dual) val on val.name=s.name)" Format="name:value">
+        <Col Name="NAME" DisplayName="name" Res="True">
+
+            <Res Name="total PGA inuse" DisplayName="tpiu" />
+            <Res Name="total PGA allocated" DisplayName="tpal" />
+            <Res Name="maximum PGA allocated" DisplayName="mpal" />
+            <Res Name="total freeable PGA memory" DisplayName="tfpm" />
+            <Res Name="process count" DisplayName="pcnt" />
+            <Res Name="max processes count" DisplayName="mpnt" />
+            <Res Name="cache hit percentage" DisplayName="chpt" />
+            <Res Name="PGA memory freed back to OS" DisplayName="pmfb" IsCounterMetric="True" />
+
+            <Res Name="Fixed SGA Size" DisplayName="fsgs" />
+            <Res Name="Redo Buffers" DisplayName="rdbf" />
+            <Res Name="Buffer Cache Size" DisplayName="bfcs" />
+            <Res Name="In-Memory Area Size" DisplayName="imas" />
+            <Res Name="Shared Pool Size" DisplayName="shps" />
+            <Res Name="Large Pool Size" DisplayName="laps" />
+            <Res Name="Java Pool Size" DisplayName="japs" />
+            <Res Name="Streams Pool Size" DisplayName="stps" />
+            <Res Name="Shared IO Pool Size" DisplayName="sios" />
+
+            <!-- The below 5 are not used for now -->
+            <Res Name="Data Transfer Cache Size" DisplayName="dtcs" /> 
+            <Res Name="Granule Size" DisplayName="grsz" />
+            <Res Name="Maximum SGA Size" DisplayName="msgs" />
+            <Res Name="Startup overhead in Shared Pool" DisplayName="sohs" />
+            <Res Name="Free SGA Memory Available" DisplayName="fsma" />
+
+            <Res Name="Variable Size" DisplayName="vrls" />
+
+            <Res Name="Average Active Sessions" DisplayName="aas" />
+            <Res Name="Buffer Cache Hit Ratio" DisplayName="bchr" />
+            <Res Name="Cursor Cache Hit Ratio" DisplayName="cchr" />
+            <Res Name="Database CPU Time Ratio" DisplayName="dctr" />
+            <Res Name="Database Wait Time Ratio" DisplayName="dwtr" />
+            <Res Name="Disk Sort Per Sec" DisplayName="dsps" />
+            <Res Name="Enqueue Timeouts Per Sec" DisplayName="etps" />
+            <Res Name="GC CR Block Received Per Second" DisplayName="gbrp" />
+            <Res Name="Global Cache Blocks Corrupted" DisplayName="gcbc" />
+            <Res Name="Global Cache Blocks Lost" DisplayName="gcbl" />
+            <Res Name="Hard Parse Count Per Sec" DisplayName="hpcs" />
+            <Res Name="Hard Parse Count Per Txn" DisplayName="hpct" />
+            <Res Name="Library Cache Hit Ratio" DisplayName="lchr" />
+            <Res Name="Logons Per Sec" DisplayName="lps" />
+            <Res Name="Long Table Scans Per Sec" DisplayName="ltsp" />
+            <Res Name="Memory Sorts Ratio" DisplayName="mssr" />
+            <Res Name="Parse Failure Count Per Sec" DisplayName="pfcs" />
+            <Res Name="Parse Failure Count Per Txn" DisplayName="pfcp" />
+            <Res Name="Physical Reads Per Sec" DisplayName="prps" />
+            <Res Name="Physical Writes Per Sec" DisplayName="pwps" />
+            <Res Name="Rows Per Sort" DisplayName="rps" />
+            <Res Name="SQL Service Response Time" DisplayName="ssrt" />
+            <Res Name="Session Count" DisplayName="scnt" />
+            <Res Name="Session Limit %" DisplayName="slpt" />
+            <Res Name="Shared Pool Free %" DisplayName="spfp" />
+            <Res Name="Soft Parse Ratio" DisplayName="sprt" />
+            <Res Name="Temp Space Used" DisplayName="tsud" />
+            <Res Name="Total Parse Count Per Sec" DisplayName="tpcs" />
+            <Res Name="Total Parse Count Per Txn" DisplayName="tpct" />
+            <Res Name="Total Sorts Per User Call" DisplayName="tsuc" />
+            <Res Name="User Rollbacks Per Sec" DisplayName="urps" />
+
+            <!-- The below 4 are not used for now -->
+            <Res Name="Average Synchronous Single-Block Read Latency" DisplayName="assb" />
+            <Res Name="Redo Allocation Hit Ratio" DisplayName="rahr" />
+            <Res Name="Current OS Load" DisplayName="cold" />
+            <Res Name="Streams Pool Usage Percentage" DisplayName="spup" />
+
+            <Res Name="sql area" DisplayName="spra" />
+            <Res Name="library cache" DisplayName="lica" />
+            <Res Name="dictionary cache" DisplayName="dcca" />
+        </Col>
+        <Col Name="VALUE" DisplayName="value" />
+    </instance>
+
+    <!-- <instance Name="PERFORMANCE_METRICS" Query="select to_number(decode((sysdate - startup_time)*86400&lt;0,true,NULL,false,round((sysdate - startup_time)*86400))) UPTIME,(select TRUNC((1-(sum(decode(name,'physical reads',value,0))/(sum(decode(name,'db block gets',value,0))+(sum(decode(name,'consistent gets',value,0))))))* 100) FROM v$SYSSTAT) DATA_BUFFER_HIT_RATIO,(select trunc((1 - (sum(GETMISSES) / sum(GETS))) * 100) from v$rowcache) DATA_DICTIONARY_HIT_RATIO,(select count(1) from v$logfile where status is null) REDO_LOG_CNT,(select count(group_number) from V$ASM_DISKGROUP) ASM_DISK_GRP_CNT,(select count(*) from v$pdbs) PDB_CNT from v$instance where rownum&lt;2" Format="{}">
+        <Col Name="UPTIME" DisplayName="uptm" />
+        <Col Name="DATA_BUFFER_HIT_RATIO" DisplayName="dbhr" />
+        <Col Name="DATA_DICTIONARY_HIT_RATIO" DisplayName="ddhr" />
+        <Col Name="REDO_LOG_CNT" DisplayName="rcnt"/>
+        <Col Name="ASM_DISK_GRP_CNT" DisplayName="asmdgt"/>
+        <Col Name="PDB_CNT" DisplayName="pdbcnt"/>
+    </instance> -->
+    <instance Name="PERFORMANCE_METRICS" Query="select to_number(case when (sysdate - startup_time)*86400&lt;0 then NULL Else round((sysdate - startup_time)*86400) end) UPTIME,(select TRUNC((1-(sum(decode(name,'physical reads',value,0))/(sum(decode(name,'db block gets',value,0))+(sum(decode(name,'consistent gets',value,0))))))* 100) FROM v$SYSSTAT) DATA_BUFFER_HIT_RATIO,(select trunc((1 - (sum(GETMISSES) / sum(GETS))) * 100) from v$rowcache) DATA_DICTIONARY_HIT_RATIO,(select count(1) from v$logfile where status is null) REDO_LOG_CNT from v$instance where rownum&lt;2" Format="{}">
+        <Col Name="UPTIME" DisplayName="uptm" />
+        <Col Name="DATA_BUFFER_HIT_RATIO" DisplayName="dbhr" />
+        <Col Name="DATA_DICTIONARY_HIT_RATIO" DisplayName="ddhr" />
+        <Col Name="REDO_LOG_CNT" DisplayName="rcnt"/>
+        <!-- <Col Name="ASM_DISK_GRP_CNT" DisplayName="asmdgt"/> -->
+        <!-- <Col Name="PDB_CNT" DisplayName="pdbcnt"/> -->
+    </instance>
+
+    <instance Name="CONTAINERS" Query="select c.con_id,ts.TABLESPACE_CNT,name,name as con_name,open_mode,to_char(open_time,'DD-MON-YYYY HH:MM:SS PM') open_time,total_size,block_size,recovery_status,SNAPSHOT_PARENT_CON_ID,application_root,application_pdb,application_seed,application_root_con_id,application_root_clone,proxy_pdb,case when local_undo =1 then 'local undo mode' when local_undo=0 then 'shared undo mode' end undo_mode,to_char(creation_time,'DD-MON-YYYY HH:MM:SS PM') creation_time,pdb_count,MEMBER_CDB,restricted from v$containers c inner join (select count(con_id) TABLESPACE_CNT,con_id from v$tablespace t group by con_id) ts on (c.con_id=ts.con_id)" Format="nm,{}">
+        <Col Name="CON_ID" DisplayName="cnid"/>
+        <Col Name="NAME" DisplayName="nm"/>
+        <Col Name="CON_NAME" DisplayName="cnm"/>
+        <Col Name="OPEN_MODE" DisplayName="opme"/>
+        <Col Name="OPEN_TIME" DisplayName="optm"/>
+        <Col Name="TOTAL_SIZE" DisplayName="tosz"/>
+        <Col Name="BLOCK_SIZE" DisplayName="blsz"/>
+        <Col Name="RECOVERY_STATUS" DisplayName="rcss"/>
+        <Col Name="SNAPSHOT_PARENT_CON_ID" DisplayName="spci"/>
+        <Col Name="APPLICATION_ROOT" DisplayName="atrt"/>
+        <Col Name="APPLICATION_PDB" DisplayName="atpd"/>
+        <Col Name="APPLICATION_SEED" DisplayName="atsd"/>
+        <Col Name="APPLICATION_ROOT_CON_ID" DisplayName="atri"/>
+        <Col Name="APPLICATION_ROOT_CLONE" DisplayName="atrc"/>
+        <Col Name="PROXY_PDB" DisplayName="ppdb"/>
+        <Col Name="UNDO_MODE" DisplayName="lund"/>
+        <Col Name="CREATION_TIME" DisplayName="cttm"/>
+        <Col Name="PDB_COUNT" DisplayName="pdct"/>
+        <Col Name="MEMBER_CDB" DisplayName="mmcd"/>
+        <Col Name="RESTRICTED" DisplayName="rstd"/>
+        <Col Name="TABLESPACE_CNT" DisplayName="tbcnt"/>
+    </instance>
+
+    <instance Name="ASM_DISKGROUP" Query="select g.name DGNM,g.name,g.free_mb,g.total_mb,g.total_mb-g.free_mb used_mb,round((g.total_mb-g.free_mb)*100/nullif(g.total_mb,0),2) USED_PERCENT,round((g.free_mb*100)/nullif(g.total_mb,0),2) FREE_PERCENT,g.type,g.state,d.* from V$ASM_DISKGROUP_STAT g inner join (select group_number,sum(reads) reads,sum(writes) writes,sum(reads + writes) total_io,avg(read_time/reads) avg_read_time,avg(write_time/writes) avg_write_time,sum(bytes_read) bytes_read,sum(bytes_written) bytes_written,sum(bytes_read+bytes_written) TOTAL_IO_BYTES from v$asm_disk_iostat group by group_number) d on d.group_number=g.group_number" Format="dgnm,{}">
+        <Col Name="DGNM" DisplayName="dgnm" />
+        <Col Name="NAME" DisplayName="name" />
+        <Col Name="TOTAL_MB" DisplayName="ttmb" />
+        <Col Name="USED_MB" DisplayName="usmb" />
+        <Col Name="FREE_MB" DisplayName="frmb" />
+        <Col Name="USED_PERCENT" DisplayName="uspr" />
+        <Col Name="FREE_PERCENT" DisplayName="frpr" />
+        <Col Name="TYPE" DisplayName="type" />
+        <Col Name="STATE" DisplayName="stt" />
+        <Col Name="GROUP_NUMBER" DisplayName="gpno" />
+        <Col Name="READS" DisplayName="rds" IsCounterMetric="True" />
+        <Col Name="WRITES" DisplayName="wrts" IsCounterMetric="True" />
+        <Col Name="TOTAL_IO" DisplayName="tiodg" IsCounterMetric="True" />
+        <Col Name="AVG_READ_TIME" DisplayName="avrt" />
+        <Col Name="AVG_WRITE_TIME" DisplayName="avwt" />
+        <Col Name="BYTES_READ" DisplayName="byrt" IsCounterMetric="True" />
+        <Col Name="BYTES_WRITTEN" DisplayName="bywt" IsCounterMetric="True" />
+        <Col Name="TOTAL_IO_BYTES" DisplayName="tiobd" IsCounterMetric="True" />
+    </instance>
+
+    <instance Name="PROCESSES" Query="select pid,pname,pga_used_mem,pga_alloc_mem,pga_freeable_mem,pga_max_mem,program from v$process where pname in ('PMON','SMON','DBW0','PSP0','VKTM','MMAN','DIAG','GEN1','GEN0','CLMN') and con_id=0" Format="">
+        <Col Name="PID" DisplayName="pid"/>
+        <Col Name="PNAME" DisplayName="pnam"/>
+        <Col Name="PGA_USED_MEM" DisplayName="pgum"/>
+        <Col Name="PGA_ALLOC_MEM" DisplayName="pgal"/>
+        <Col Name="PGA_FREEABLE_MEM" DisplayName="pgfr"/> 
+        <Col Name="PGA_MAX_MEM" DisplayName="pgmm"/>
+        <Col Name="PROGRAM" DisplayName="prgm"/> 
+    </instance>
+
+    <oracledb Name="TABLESPACE" Query="select ddf.*,total,used,total - used free, round((used/total) * 100, 2) Used_Percent, round(((total - used) /total) * 100, 2) Free_Percent from (SELECT d.status, d.tablespace_name,a.bytes ALLOCATED_SIZE,a.bytes - NVL(f.bytes, 0) ALLOCATED_SIZE_USED,f.bytes ALLOCATED_SIZE_FREE,round((a.bytes - NVL(f.bytes, 0)) / a.bytes * 100, 2) ALLOCATED_SIZE_USED_PERCENT,round(NVL(f.bytes, 0) / a.bytes *100,2) ALLOCATED_SIZE_FREE_PERCENT FROM sys.dba_tablespaces d,(select tablespace_name, sum(bytes) bytes from dba_data_files group by tablespace_name) a,(select tablespace_name, sum(bytes) bytes from dba_free_space group by tablespace_name) f WHERE d.tablespace_name = a.tablespace_name(+) AND d.tablespace_name = f.tablespace_name(+) AND NOT (d.extent_management like 'LOCAL' AND d.contents like 'TEMPORARY') UNION ALL select ts.*,ts.ALLOCATED_SIZE-ts.ALLOCATED_SIZE_USED ALLOCATED_SIZE_FREE, round((ALLOCATED_SIZE_USED/ALLOCATED_SIZE)*100,2) ALLOCATED_SIZE_USED_PERCENT,round(((ALLOCATED_SIZE-ALLOCATED_SIZE_USED)/ALLOCATED_SIZE)*100,2) ALLOCATED_SIZE_FREE_PERCENT  from (SELECT d.status, d.tablespace_name, a.bytes ALLOCATED_SIZE,case when a.bytes&lt;t.bytes then a.bytes else t.bytes end ALLOCATED_SIZE_USED FROM sys.dba_tablespaces d,(select tablespace_name, sum(bytes) bytes from dba_temp_files group by tablespace_name) a, (select tablespace_name, sum(bytes_used) bytes from v$temp_extent_pool group by tablespace_name) t WHERE d.tablespace_name = a.tablespace_name(+) AND d.tablespace_name = t.tablespace_name(+) AND  d.extent_management like 'LOCAL' AND d.contents like 'TEMPORARY') ts) ddf inner join (select d.tablespace_name,m.TABLESPACE_SIZE*d.BLOCK_SIZE total,m.USED_SPACE*d.BLOCK_SIZE used from dba_tablespace_usage_metrics m, sys.dba_tablespaces d where d.tablespace_name = m.tablespace_name) dtum on ddf.tablespace_name=dtum.tablespace_name" Format="">
+        <Col Name="STATUS" DisplayName="sts" />
+        <Col Name="TABLESPACE_NAME" DisplayName="tsnm" />
+        <Col Name="TOTAL" DisplayName="tot" />
+        <Col Name="USED" DisplayName="used" />
+        <Col Name="FREE" DisplayName="free" />
+        <Col Name="USED_PERCENT" DisplayName="usdp" />
+        <Col Name="FREE_PERCENT" DisplayName="frpt" />
+        <Col Name="ALLOCATED_SIZE" DisplayName="astot"/>
+        <Col Name="ALLOCATED_SIZE_USED" DisplayName="asused"/>
+        <Col Name="ALLOCATED_SIZE_FREE" DisplayName="asfree"/>
+        <Col Name="ALLOCATED_SIZE_USED_PERCENT" DisplayName="asusdp"/>
+        <Col Name="ALLOCATED_SIZE_FREE_PERCENT" DisplayName="asfrpt"/>
+    </oracledb>
+
+    <oracledb Name="SESSION" Query="select status name,count(1) value from v$session s right outer join v$process p on s.paddr = p.addr where s.type ='USER' group by status union all select name,round(value,2) value from v$sysstat where name in ('user commits','user rollbacks','bytes received via SQL*Net from client','bytes sent via SQL*Net to client','session logical reads','user logons cumulative','user logouts cumulative','redo buffer allocation retries','redo log space wait time','redo writes','redo log space requests') and value>=0" Format="name:value">
+        <Col Name="NAME" DisplayName="name" Res="True">
+            <Res Name="ACTIVE" DisplayName="acss"/>
+            <Res Name="INACTIVE" DisplayName="inss"/>
+            <Res Name="bytes sent via SQL*Net to client" DisplayName="sert" IsCounterMetric="True"/>
+            <Res Name="bytes received via SQL*Net from client" DisplayName="rert" IsCounterMetric="True"/>
+            <Res Name="user logons cumulative" DisplayName="lgon" IsCounterMetric="True"/>
+            <Res Name="user logouts cumulative" DisplayName="lgout" IsCounterMetric="True"/>
+            <Res Name="session logical reads" DisplayName="lgrd" IsCounterMetric="True"/>
+            <Res Name="user commits" DisplayName="uscm" IsCounterMetric="True" />
+            <Res Name="user rollbacks" DisplayName="usrb" IsCounterMetric="True" />
+            <Res Name="redo buffer allocation retries" DisplayName="rbar" IsCounterMetric="True" />
+            <Res Name="redo log space wait time" DisplayName="rlswt" IsCounterMetric="True" />
+            <Res Name="redo writes" DisplayName="rdwt" IsCounterMetric="True" />
+            <Res Name="redo log space requests" DisplayName="rlsr" IsCounterMetric="True" />
+        </Col>
+        <Col Name="VALUE" DisplayName="value"/>
+    </oracledb>
+
+    <oracledb Name="SINGLE_VALUES" Query="select (select count(blocking_session) FROM v$session WHERE blocking_session is not NULL) blocking_sessions_cnt,(select count(1) from DBA_DB_LINKS) db_links_cnt,(select count(1) from dba_objects where status='INVALID') invalid_objects_count,(select count(1) from dba_indexes where status='UNUSABLE') unused_indexes_count,t.*, db_total - db_available db_used,round((db_available*100)/nullif(db_total,0),2) db_available_percent,round((db_total - db_available)*100/nullif(db_total,0),2) db_used_percent from (select (select sum(bytes) from dba_data_files) db_total,(select sum(bytes) from dba_free_space) db_available from dual) t" Format="{}">
+        <Col Name="BLOCKING_SESSIONS_CNT" DisplayName="blss"/>
+        <Col Name="DB_LINKS_CNT" DisplayName="dblk"/>
+        <Col Name="INVALID_OBJECTS_COUNT" DisplayName="inob"/>
+        <Col Name="UNUSED_INDEXES_COUNT" DisplayName="unin"/>
+        
+        <Col Name="DB_TOTAL" DisplayName="dbtot"/>
+        <Col Name="DB_USED" DisplayName="dbusd"/>
+        <Col Name="DB_AVAILABLE" DisplayName="dbaval"/>
+        <Col Name="DB_AVAILABLE_PERCENT" DisplayName="dbavap"/>
+        <Col Name="DB_USED_PERCENT" DisplayName="dbusdp"/>
+    </oracledb>
+    
+    <config Name="DATABASE_INSTANCE" Query="select i.*,d.*,(select count(group_number) from V$ASM_DISKGROUP) ASM_DISK_GRP_CNT,(select count(*) from v$pdbs) PDB_CNT from (select INSTANCE_NUMBER,INSTANCE_NAME,HOST_NAME,VERSION,to_char(STARTUP_TIME,'DD-MON-YYYY HH:MM:SS PM') STARTUP_TIME,STATUS,PARALLEL,THREAD#,ARCHIVER,LOG_SWITCH_WAIT,LOGINS,SHUTDOWN_PENDING,DATABASE_STATUS,INSTANCE_ROLE,ACTIVE_STATE,BLOCKED,CON_ID,INSTANCE_MODE,EDITION,DATABASE_TYPE from v$instance) i, (select DBID,NAME,CDB,to_char(CREATED,'DD-MON-YYYY HH:MM:SS PM') CREATED,OPEN_MODE,FLASHBACK_ON,LOG_MODE,DATABASE_ROLE,CONTROLFILE_TYPE,SWITCHOVER_STATUS,PROTECTION_MODE,OPEN_RESETLOGS,GUARD_STATUS,FORCE_LOGGING,CURRENT_SCN from v$database) d" Format="{}">
+        <Col Name="INSTANCE_NUMBER" DisplayName="insn" />
+        <Col Name="INSTANCE_NAME" DisplayName="innm" />
+        <Col Name="HOST_NAME" DisplayName="hsnm" />
+        <Col Name="VERSION" DisplayName="vrsn" />
+        <Col Name="STARTUP_TIME" DisplayName="sttm" />
+        <Col Name="STATUS" DisplayName="stts" />
+        <Col Name="PARALLEL" DisplayName="prll" />
+        <Col Name="THREAD#" DisplayName="thrd" />
+        <Col Name="ARCHIVER" DisplayName="arch" />
+        <Col Name="LOG_SWITCH_WAIT" DisplayName="lswt" />
+        <Col Name="LOGINS" DisplayName="lgns" />
+        <Col Name="SHUTDOWN_PENDING" DisplayName="sdpg" />
+        <Col Name="DATABASE_STATUS" DisplayName="dbss" />
+        <Col Name="INSTANCE_ROLE" DisplayName="insr" />
+        <Col Name="ACTIVE_STATE" DisplayName="acts" />
+        <Col Name="BLOCKED" DisplayName="blkd" />
+        <Col Name="CON_ID" DisplayName="cnid" />
+        <Col Name="INSTANCE_MODE" DisplayName="insm" />
+        <Col Name="EDITION" DisplayName="edt" />
+        <Col Name="DATABASE_TYPE" DisplayName="dbtp" />
+
+        <Col Name="DBID" DisplayName="dbid" />
+        <Col Name="NAME" DisplayName="name" />
+        <Col Name="CDB" DisplayName="cdb" />
+        <Col Name="CREATED" DisplayName="crtd" />
+        <Col Name="OPEN_MODE" DisplayName="opmd" />
+        <Col Name="FLASHBACK_ON" DisplayName="fbon" />
+        <Col Name="LOG_MODE" DisplayName="lomd" />
+        <Col Name="DATABASE_ROLE" DisplayName="dbrl" />
+        <Col Name="CONTROLFILE_TYPE" DisplayName="ctfl" />
+        <Col Name="SWITCHOVER_STATUS" DisplayName="stos" />
+        <Col Name="PROTECTION_MODE" DisplayName="ptmo" />
+        <Col Name="OPEN_RESETLOGS" DisplayName="orls" />
+        <Col Name="GUARD_STATUS" DisplayName="gsts" />
+        <Col Name="FORCE_LOGGING" DisplayName="flgg" />
+        <Col Name="CURRENT_SCN" DisplayName="cscn" />
+        <Col Name="ASM_DISK_GRP_CNT" DisplayName="asmdgt"/>
+        <Col Name="PDB_CNT" DisplayName="pdbcnt"/>
+    </config>
+
+    <config Name="SGA_DYNAMIC" Query="select component, MAX_SIZE from V$SGA_DYNAMIC_COMPONENTS where component in ('shared pool','large pool','java pool','streams pool','DEFAULT buffer cache','Shared IO Pool')" Format="component:max_size">
+        <Col Name="COMPONENT" DisplayName="component" Res="True">
+            <Res Name="shared pool" DisplayName="sdpl" />
+            <Res Name="large pool" DisplayName="lgpl" />
+            <Res Name="java pool" DisplayName="jvpl" />
+            <Res Name="streams pool" DisplayName="sspl" />
+            <Res Name="DEFAULT buffer cache" DisplayName="dbcc" />
+            <Res Name="Shared IO Pool" DisplayName="siop" />
+        </Col>
+        <Col Name="MAX_SIZE" DisplayName="max_size" />
+    </config>
+
+    <config Name="PARAMETERS" Query="select name,Coalesce(value,default_value) value from v$parameter where name in ('clonedb','cluster_database','common_user_prefix','compatible','control_files','cpu_count','db_file_multiblock_read_count','db_files','instance_type','max_pdbs','noncdb_compatible','open_cursors','spfile','statistics_level','timed_statistics','undo_management','undo_retention','undo_tablespace')" Format="name:value">
+        <Col Name="NAME" DisplayName="name" Res="True">
+            <Res Name="clonedb" DisplayName="cndb"/>
+            <Res Name="cluster_database" DisplayName="cldb"/>
+            <Res Name="common_user_prefix" DisplayName="cup"/>
+            <Res Name="compatible" DisplayName="cmp"/>
+            <Res Name="control_files" DisplayName="ctlf"/>
+            <Res Name="cpu_count" DisplayName="cpct"/>
+            <Res Name="db_file_multiblock_read_count" DisplayName="dfmr"/>
+            <Res Name="db_files" DisplayName="dbfs"/>
+            <Res Name="instance_type" DisplayName="intp"/>
+            <Res Name="max_pdbs" DisplayName="mpdb"/>
+            <Res Name="noncdb_compatible" DisplayName="nccl"/>
+            <Res Name="open_cursors" DisplayName="opcr"/>
+            <Res Name="statistics_level" DisplayName="stlv"/>
+            <Res Name="spfile" DisplayName="spfl"/>
+            <Res Name="timed_statistics" DisplayName="tmst"/>
+            <Res Name="undo_management" DisplayName="umgm"/>
+            <Res Name="undo_retention" DisplayName="urtt"/>
+            <Res Name="undo_tablespace" DisplayName="unts"/>
+        </Col>
+        <Col Name="VALUE" DisplayName="value"/>
+    </config>
+
+
+</Queries>

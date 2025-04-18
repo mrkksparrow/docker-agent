@@ -1,0 +1,142 @@
+#!/bin/bash
+# chkconfig: 2345 99 1
+# description: site24x7 Agent
+# processname: site24x7monagent
+
+### BEGIN INIT INFO
+# Provides:           site24x7monagent
+# Required-Start:     
+# Required-Stop:      
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description:  site24x7 Agent
+# Description:        Site24x7 monitoring agent
+#
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
+PRODUCT_NAME=site24x7
+MON_AGENT_HOME=/opt/site24x7/monagent
+SCRIPT_NAME=$(basename $0)
+SUCCESS=0
+FAILURE=1
+IS_MON_USER=0
+MON_AGENT_GROUP=site24x7-group
+MON_AGENT_USER=site24x7-agent
+MON_AGENT_START='start'
+MON_AGENT_STOP='stop'
+MON_AGENT_STATUS='status'
+MON_AGENT_RESTART='restart'
+MON_AGENT_UNINSTALL='uninstall'
+MON_AGENT_BIN_DIR=$MON_AGENT_HOME/bin
+MON_AGENT_BIN_BOOT_FILE=$MON_AGENT_BIN_DIR/monagent
+MON_AGENT_WATCHDOG_BIN_BOOT_FILE=$MON_AGENT_BIN_DIR/monagentwatchdog
+MON_AGENT_BOOT_FILE_NAME=site24x7monagent
+MON_AGENT_LOG_DIR=$MON_AGENT_HOME/logs
+MON_AGENT_DETAILS_LOG_DIR=$MON_AGENT_LOG_DIR/details
+MON_AGENT_UNINSTALL_FILE=$MON_AGENT_BIN_DIR/uninstall
+export SHELL=/bin/bash
+export TERM=xterm
+
+# added site24x7-agent user check also to start the service
+isRootUser() {
+  if [ "$(id -u)" != "0" ] && [ "$(id -nu)" != "site24x7-agent" ] && [ "$(id -ng)" != "site24x7-group" ]; then
+		cat <<ERROR_MESSAGE
+
+WARNING:
+	Only root and users with sudo permission are allowed to execute this script 
+	Command : sudo "$SCRIPT_NAME {start|stop|status|restart|uninstall}"
+	
+ERROR_MESSAGE
+		exit 1
+	fi
+}
+
+logEnv() {
+	ENV_LOG_FILE=$MON_AGENT_LOG_DIR/serviceenv.txt
+	if [ ! -d $MON_AGENT_LOG_DIR ]; then
+		mkdir -p $MON_AGENT_LOG_DIR
+		RET_VAL=$?
+		if [ $RET_VAL == $FAILURE ]; then
+			echo "Error while creating log directory. Hence quiting."
+			exit $FAILURE
+		fi
+		chown -vR $MON_AGENT_USER:$MON_AGENT_GROUP $MON_AGENT_LOG_DIR >> $ENV_LOG_FILE 2>&1
+		chmod -vR 755 $MON_AGENT_LOG_DIR >> $ENV_LOG_FILE 2>&1
+	fi
+	env > $ENV_LOG_FILE 2>&1
+}
+
+isRootUser
+logEnv
+
+
+
+IS_MON_USER=$SUCCESS
+
+start() {
+	if [ -d /var/lock/subsys ]; then
+		touch /var/lock/subsys/$MON_AGENT_BOOT_FILE_NAME 2>/dev/null
+	fi
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_START
+	else		
+		su - $MON_AGENT_USER -c "$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_START"
+	fi
+}
+
+stop() {    
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_WATCHDOG_BIN_BOOT_FILE $MON_AGENT_STOP
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_STOP		
+	else		
+		su - $MON_AGENT_USER -c "$MON_AGENT_WATCHDOG_BIN_BOOT_FILE $MON_AGENT_STOP"
+		su - $MON_AGENT_USER -c "$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_STOP"
+	fi
+}
+
+
+restart() {
+	if [ -d /var/lock/subsys ]; then
+		touch /var/lock/subsys/$MON_AGENT_BOOT_FILE_NAME 2>/dev/null
+	fi
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_RESTART		
+	else		
+		su - $MON_AGENT_USER -c "$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_RESTART"
+	fi	
+}
+
+
+status() {		 
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_STATUS		
+	else		
+		su - $MON_AGENT_USER -c "$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_STATUS"
+	fi	             
+}
+
+uninstall() {
+	$MON_AGENT_UNINSTALL_FILE
+}
+
+case "$1" in
+$MON_AGENT_START)
+	start
+	;;
+$MON_AGENT_STOP)
+	stop
+	;;
+$MON_AGENT_RESTART)
+	restart
+	;;
+$MON_AGENT_STATUS)
+    status
+	;;
+$MON_AGENT_UNINSTALL)
+    uninstall
+	;;
+*)
+	echo "Usage: $SCRIPT_NAME {$MON_AGENT_START|$MON_AGENT_STOP|$MON_AGENT_STATUS|$MON_AGENT_RESTART|$MON_AGENT_UNINSTALL}"
+	exit 1
+esac

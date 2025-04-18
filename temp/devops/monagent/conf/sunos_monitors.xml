@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+<!-- 
+Attributes :
+	script		=	"script=true" tells the agent to append script location before the "command=cpu.sh" attribute
+	sendValue	=	"sendValue=false" implies attribute value parsed from command output will not be sent to server
+ -->
+<MonitorsXml>
+	<sunosMonitors>
+		<Monitor Id="Disk_Utilization" script="true" command="sunos_script.sh" commandArgs="disk_details" parseTag="disk details" interval="30" parseAll="true" parseImpl="DISK_SUN_IMPL">
+			<Entity Id="Name" token="1" delimiter="--" name="Name"/>
+			<Entity Id="FileSystem" token="2" delimiter="--" name="FileSystem"/>
+			<Entity Id="Used_Percentage" token="3" delimiter="--" name="Used_Percentage"/>
+			<Entity Id="Used_KB" token="4" delimiter="--" name="Used_KB"/>
+			<Entity Id="Size_KB" token="5" delimiter="--" name="Size_KB"/>
+		</Monitor>
+		<Monitor Id="Cpu_Utilization" logOutput="true" script="true" command="sunos_script.sh" commandArgs="cpu_util" parseTag="cpu_util" bufferSize="1" interval="30" parseImpl="CPU_SUN_IMPL">
+			<Entity Id="cpu_idle" parseLine="5" token="22" delimiter=" " name="cpu_idle"/>
+			<Entity Id="cpu_user" parseLine="5" token="20" delimiter=" " name="cpu_user"/>
+			<Entity Id="cpu_sys" parseLine="5" token="21" delimiter=" " name="cpu_sys"/>
+			<Entity Id="interrupts" parseLine="5" token="17" delimiter=" " name="interrupts"/>
+			<Entity Id="ctxtsw" parseLine="5" token="19" delimiter=" " name="ctxtsw"/>
+			<Entity Id="pin" parseLine="5" token="8" delimiter=" " name="pin"/>
+			<Entity Id="pout" parseLine="5" token="9" delimiter=" " name="pout"/>
+		</Monitor>
+		<Monitor Id="Memory_Utilization" logOutput="true" script="true" command="sunos_script.sh" commandArgs="mem_util" parseTag="mem_util" bufferSize="1" interval="30" parseImpl="MEM_SUN_IMPL">
+			<Entity Id="tvism" parseLine="1" token="2" delimiter=" " name="tvism"/>
+			<Entity Id="uvism" parseLine="1" token="4" delimiter=" " name="uvism"/>
+			<Entity Id="tvirm" parseLine="2" token="3" delimiter=" " name="tvirm"/>
+			<Entity Id="fvirm" parseLine="7" token="5" delimiter=" " name="fvirm"/>
+		</Monitor>
+		<Monitor Id="Metrics" logOutput="false" script="true" command="sunos_script.sh" commandArgs="disk_err" parseTag="disk errors" parse="false" bufferSize="1" interval="30" parseImpl="DIRECT_IMPL">
+		</Monitor>
+	</sunosMonitors>
+</MonitorsXml>

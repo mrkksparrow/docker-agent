@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Attributes :
+	script		=	"script=true" tells the agent to append script location before the "command=cpu.sh" attribute
+	sendValue	=	"sendValue=false" implies attribute value parsed from command output will not be sent to server
+ -->
+<!--MonitorsXml>
+	<LinuxMonitors>
+		<Monitor Id="Number Of Cores" script="true" command="test.sh" interval="5">
+			<Entity Id="NumberOfCores" default="0" parseLine="1" token="2" delimiter=":" name="NumberOfCores"/>			
+		</Monitor>
+	</LinuxMonitors>
+</MonitorsXml-->
+
+<!-- $Id$ -->

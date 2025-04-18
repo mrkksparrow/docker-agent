@@ -1,0 +1,25 @@
+{
+    "MonitorGroup": {
+        "Monitoring": {
+            "GroupName": "Monitoring",
+            "Interval": "300",
+            "SaveFile": "False",
+            "Monitors": [
+                "Disk_Utilization",
+                "Cpu_Utilization",
+                "Memory_Utilization",
+                "Metrics"
+            ]
+        },
+        "TopProcessMonitoring": {
+     		 "GroupName": "TopProcessMonitoring",
+			"Interval": "60",
+      		"Impl": "true"
+   		 },
+        "server_inventory": {
+			"GroupName": "server_inventory",
+			"Interval": "3600",
+			"Impl": "true"
+		}
+    }
+}

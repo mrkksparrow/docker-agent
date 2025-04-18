@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LoggingXml>
+    <LoggingConfig redirectStd="True">
+    	<Logger name="STDOUT" fileName="stdout" fileSize="4000000" fileCount="2" level="3"/>
+		<Logger name="COLLECTOR" fileName="collector" fileSize="4000000" fileCount="7" level="3"/>
+        <Logger name="UDP" fileName="udp" fileSize="2000000" fileCount="2" level="3"/>
+        <Logger name="UDPRAW" fileName="udp_raw" fileSize="2000000" fileCount="2" level="3"/>
+        <Logger name="UDPFILTERED" fileName="udp_filtered" fileSize="2000000" fileCount="2" level="3"/>
+        <Logger name="PING" fileName="ping" fileSize="2000000" fileCount="1" level="3"/>
+        <Logger name="CHECKS" fileName="checks" fileSize="4000000" fileCount="3" level="3" />
+        <Logger name="PLUGINS" fileName="plugins" fileSize="4000000" fileCount="3" level="3"/>
+        <Logger name="METRICS" fileName="metrics" parent="true" fileSize="2000000" fileCount="10" level="3"/>
+        <!--  main logging agent one time activities -->
+        <Logger name="MAIN" fileName="main" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <!-- any error messages or info  -->
+        <Logger name="CRITICAL" fileName="critical" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <!-- exception catcher -->
+        <Logger name="STDERR" fileName="stderr" fileSize="2000000" fileCount="3" level="3"/>
+        <!--  apps logging agent one time activity -->
+        <Logger name="APPS" fileName="apps" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <Logger name="DATABASE" fileName="database" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <Logger name="QUERY" fileName="query" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <Logger name="DA" fileName="da" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <Logger name="FRAMEWORK" fileName="framework" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <Logger name="HARDWARE" fileName="hardware" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <Logger name="KUBERNETES" fileName="kubernetes" parent="true" fileSize="1000000" fileCount="10" level="3"/>
+        <Logger name="DEPLOYMENT" fileName="deployment" fileSize="1000000" fileCount="4" level="3"/>
+    </LoggingConfig>
+</LoggingXml>
+<!-- $Id$ -->

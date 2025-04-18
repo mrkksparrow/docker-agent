@@ -1,0 +1,18 @@
+{
+    "AWS": {
+        "MetadataUrl": "http://169.254.169.254/latest/dynamic/instance-identity/document",
+        "key": "instanceId"
+    },
+    "Azure": {
+        "MetadataUrl": "http://169.254.169.254/metadata/v1/InstanceInfo",
+        "key": "ID"
+    },
+    "DigitalOcean": {
+        "MetadataUrl": "http://169.254.169.254/metadata/v1.json",
+        "key": "droplet_id"
+    },
+    "UpCloud": {
+        "MetadataUrl": "http://169.254.169.254/metadata/v1.json",
+        "key": "instance_id"
+    }
+}

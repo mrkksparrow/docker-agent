@@ -1,0 +1,99 @@
+{
+  "MonitorGroup": {
+    "Root Cause Analysis": {
+      "GroupName": "Root Cause Analysis",
+      "Interval": "60",
+      "SaveFile": "single",
+      "Monitors": [
+        "CPU Utilization",
+        "Disk Utilization",
+        "Memory Utilization",
+        "Number Of Cores",
+        "OS Architecture",
+        "Adapter Details",
+        "Network Statistics",
+        "Number of Interrupts",
+        "Context Switches",
+        "Memory Statistics",
+        "Disk Statistics",
+        "PROCESS_AND_SERVICE_DETAILS"
+      ]
+    },
+    "Real Time Monitoring": {
+      "GroupName": "Real Time Monitoring",
+      "Interval": "60",
+      "SaveFile": "multiple",
+      "Monitors": [
+        "CPU Utilization",
+        "Disk Utilization",
+        "Memory Utilization",
+        "Network Statistics",
+        "Number of Interrupts",
+        "Context Switches",
+        "Memory Statistics",
+        "Disk Statistics",
+        "PROCESS_AND_SERVICE_DETAILS"
+      ]
+    },
+    "Monitoring": {
+      "GroupName": "Monitoring",
+      "Interval": "60",
+      "SaveFile": "multiple",
+      "Monitors": [
+        "CPU Utilization",
+        "Disk Utilization",
+        "Memory Utilization",
+        "Number Of Cores",
+        "OS Architecture",
+        "Adapter Details",
+        "Network Statistics",
+        "Number of Interrupts",
+        "Context Switches",
+        "Memory Statistics",
+        "Disk Statistics",
+        "PROCESS_AND_SERVICE_DETAILS"
+      ]
+    },
+    "CPUMonitoring":{
+        	"GroupName": "CPUMonitoring",
+        	"SaveFile": "False",
+        	"Schedule":"false",
+        	"Interval":"300",
+            "Monitors": [
+            	"CPU Utilization"
+            ]	
+    },
+    "Root Cause Analysis Raw": {
+      "GroupName": "Root Cause Analysis Raw",
+      "Interval": "60",
+      "SaveFile": "single",
+      "TempDirectory": "rca",
+      "Monitors": [
+        "CPU Utilization",
+        "Disk Utilization",
+        "Memory Utilization",
+        "Adapter Details",
+        "Network Statistics",
+        "Number of Interrupts",
+        "Context Switches",
+        "Memory Statistics",
+        "Disk Statistics",
+        "PROCESS_AND_SERVICE_DETAILS"
+      ]
+    },
+    "ChecksMonitoring":{
+      "NTP":[
+      ],
+      "Port": [
+      ],
+      "URL": [
+      ],
+      "FileDirectory": [
+      ],
+      "NFSMonitoring":[
+      ]
+	  },
+	  "ScriptMonitoring":[
+	  ]
+  	}
+}

@@ -1,0 +1,106 @@
+#!/bin/sh
+
+# $FreeBSD$
+# PROVIDE: site24x7monagent
+# BEFORE: LOGIN
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="site24x7monagent"
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+restart_cmd="${name}_restart"
+status_cmd="${name}_status"
+rcvar=site24x7monagent_enable
+load_rc_config $name
+: ${site24x7monagent_enable="YES"}
+
+#PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
+PRODUCT_NAME=site24x7
+MON_AGENT_HOME=/opt/site24x7/monagent
+SCRIPT_NAME=$(readlink -f $0)
+SUCCESS=0
+FAILURE=1
+IS_MON_USER=0
+MON_AGENT_GROUP=site24x7-group
+MON_AGENT_USER=site24x7-agent
+MON_AGENT_START='start'
+MON_AGENT_STOP='stop'
+MON_AGENT_STATUS='status'
+MON_AGENT_RESTART='restart'
+MON_AGENT_BIN_DIR=$MON_AGENT_HOME/bin
+MON_AGENT_BIN_BOOT_FILE=$MON_AGENT_BIN_DIR/monagent
+MON_AGENT_WATCHDOG_BIN_BOOT_FILE=$MON_AGENT_BIN_DIR/monagentwatchdog
+MON_AGENT_BOOT_FILE_NAME=site24x7monagent
+MON_AGENT_LOG_DIR=$MON_AGENT_HOME/logs
+export SHELL=/bin/sh
+export TERM=xterm
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/compat 
+
+isRootUser() {
+	if [ "$(id -u)" != "0" ]; then
+		cat <<ERROR_MESSAGE
+
+WARNING:
+	Only root and users with sudo permission are allowed to execute this script 
+	Command : sudo "$SCRIPT_NAME {start|stop|status|restart}"
+	
+ERROR_MESSAGE
+		exit 1
+	fi
+}
+
+logEnv()
+{
+	ENV_LOG_FILE=$MON_AGENT_LOG_DIR/watchdogenv.txt
+	if [ ! -d $MON_AGENT_LOG_DIR ]; then
+		mkdir -p $MON_AGENT_LOG_DIR
+		RET_VAL=$?
+		if [ $RET_VAL == $FAILURE ]; then
+			echo "Error while creating log directory. Hence quiting."
+			exit $FAILURE
+		fi
+		chown -vR $MON_AGENT_USER:$MON_AGENT_GROUP $MON_AGENT_LOG_DIR >> $ENV_LOG_FILE 2>&1
+		chmod -vR 755 $MON_AGENT_LOG_DIR >> $ENV_LOG_FILE 2>&1
+	fi
+	env > $ENV_LOG_FILE 2>&1
+}
+
+isRootUser
+logEnv
+
+IS_MON_USER=$SUCCESS
+
+site24x7monagent_start()
+{
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_START
+	fi
+}
+
+site24x7monagent_stop()
+{
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_WATCHDOG_BIN_BOOT_FILE $MON_AGENT_STOP
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_STOP
+	fi
+}
+
+site24x7monagent_restart()
+{
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_RESTART
+	fi
+}
+
+site24x7monagent_status()
+{
+	if [ $IS_MON_USER -eq $SUCCESS ]; then
+		$MON_AGENT_BIN_BOOT_FILE $MON_AGENT_STATUS
+	fi
+}
+
+load_rc_config $name
+run_rc_command "$1"
+

@@ -1,0 +1,76 @@
+#!/bin/sh
+
+MON_AGENT_PROG_NAME="Site24x7Agent"
+MON_AGENT_WATCHDOG_PROG_NAME="Site24x7AgentWatchdog"
+PY_MON_AGENT_PROG_NAME="MonitoringAgent.py"
+PY_MON_AGENT_WATCHDOG_PROG_NAME="MonitoringAgentWatchdog.py"
+THIRTY_TWO_BIT='32-bit'
+SIXTY_FOUR_BIT='64-bit'
+ATTENDANCE="1"
+OS_NAME=`uname -s`
+
+check_agent_already_running(){
+	PID=$(ps auxww | grep $MON_AGENT_PROG_NAME | grep -v grep | grep -v $MON_AGENT_WATCHDOG_PROG_NAME | awk '/ / {print $2}')
+	if [ "$PID" == "" ]; then 
+		PID=$(ps auxww | grep $PY_MON_AGENT_PROG_NAME | grep -v grep | grep -v $PY_MON_AGENT_WATCHDOG_PROG_NAME | awk '/ / {print $2}')
+		if [ "$PID" == "" ]; then 
+	    		ATTENDANCE=0
+	    	else
+	    		ATTENDANCE=1
+	    	fi
+	else	    
+    		ATTENDANCE=1
+	fi
+}
+
+get_hardware_platform() {
+	if [ "`which file`" = "" ]; then		
+	    if [ `/usr/bin/getconf LONG_BIT` = "64" ]; then
+		    OS_BINARY_TYPE="$SIXTY_FOUR_BIT"
+		elif [ `/usr/bin/getconf LONG_BIT` = "32" ]; then
+		    OS_BINARY_TYPE="$THIRTY_TWO_BIT"
+		fi
+	else
+		if /usr/bin/file /sbin/init | grep 'ELF 64-bit' &>/dev/null; then
+		    OS_BINARY_TYPE="$SIXTY_FOUR_BIT"
+		elif /usr/bin/file /sbin/init | grep 'ELF 32-bit' &>/dev/null; then
+		    OS_BINARY_TYPE="$THIRTY_TWO_BIT"
+		elif [ `/usr/bin/getconf LONG_BIT` = "64" ]; then
+		    OS_BINARY_TYPE="$SIXTY_FOUR_BIT"
+		elif [ `/usr/bin/getconf LONG_BIT` = "32" ]; then
+		    OS_BINARY_TYPE="$THIRTY_TWO_BIT"
+		fi
+	fi	
+}	
+
+detect_os(){
+	if [ "$OS_NAME" = "Linux" ]; then
+		IS_VENV_SUPPORT_NEEDED="0"
+	else
+		IS_VENV_SUPPORT_NEEDED="1"
+	fi
+}
+
+check_for_bin_support(){
+	detect_os
+}
+
+get_user_id(){
+	USER_ID=`id -u`
+}
+
+get_shell_type(){
+	if command -v bash > /dev/null; then
+    		SHELL_UTILITY="bash"
+    else
+    		SHELL_UTILITY="sh"
+    fi
+}
+
+check_agent_already_running
+check_for_bin_support
+get_hardware_platform
+get_user_id
+get_shell_type
+
+printf "$ATTENDANCE | $IS_VENV_SUPPORT_NEEDED | $OS_BINARY_TYPE | $USER_ID | $SHELL_UTILITY"

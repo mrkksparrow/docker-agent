@@ -5,6 +5,7 @@ MAINTAINER site24x7<support@site24x7.com>
 RUN apt-get update && \
   apt-get install -y python3 python3-dev python3-pip python3-venv && \
   apt-get install -y wget && \
+  apt-get install -y curl && \
   apt-get install -y vim && \
   apt-get install -y libssl-dev && \
   apt-get install -y tini && \

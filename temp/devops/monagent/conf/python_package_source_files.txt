@@ -1,0 +1,6 @@
+setuptools-40.6.3.zip
+pip-18.1.zip
+six-1.12.0.zip
+xmljson-0.2.0.zip
+pyparsing-2.0.3.zip
+futures-3.2.0.zip

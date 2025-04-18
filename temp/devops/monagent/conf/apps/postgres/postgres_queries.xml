@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Queries>
+    <pg_server Name="CONNCNT" Query="select t1.state,COALESCE(connections,0) as connections 
+        FROM (VALUES('active'),('idle'),('disabled'),('idle in transaction'),('idle in transaction (aborted)'),('fastpath function call')) as t1(state) 
+        LEFT JOIN (select count(*) as connections,state from pg_stat_activity where datname is not null group by state) as t2 on t1.state=t2.state" Format="state:connections">
+        <Col Name="state" DisplayName="state" Res="True">
+            <Res Name="active" DisplayName="cona"/>
+            <Res Name="idle" DisplayName="coni"/>
+            <Res Name="disabled" DisplayName="cond"/>
+            <Res Name="idle in transaction" DisplayName="coit"/>
+            <Res Name="idle in transaction (aborted)" DisplayName="cita"/>
+            <Res Name="fastpath function call" DisplayName="ftfc"/>
+        </Col>
+        <Col Name="connections" DisplayName="connections" />
+    </pg_server>
+
+    <pg_server Name="IMPPERF" Query="select extract(epoch from current_timestamp - pg_postmaster_start_time())::Bigint as uptime,d.total_connections,d.db_count,round(d.total_connections*100.0/nullif((select setting FROM pg_settings WHERE name = 'max_connections')::INT,0),2) as connection_percent from (select sum(numbackends) as total_connections,count(*) as db_count from pg_stat_database where datname is not null and datname not in ('template0','template1')) as d" KeyWithNone="False" Format="{}">
+        <Col Name="uptime" DisplayName="upt" />
+        <Col Name="connection_percent" DisplayName="conp" />
+        <Col Name="total_connections" DisplayName="tc" />
+        <Col Name="db_count" DisplayName="dbc" />
+    </pg_server>
+
+    <!-- compute for DBMAIN,STBG,WAL,ARCH -->
+    <pg_server Name="DBMAIN" Query="select db.*,COALESCE(lk.lock_cnt,0) as lock_cnt from (select datid,datname as dbname,datname,
+        pg_database_size(datname) as database_size,
+        blks_hit,blks_read,
+        tup_fetched,tup_returned,
+        tup_fetched as pure_tup_fetched,tup_returned as pure_tup_returned,
+        conflicts,
+        blk_read_time,blk_write_time,
+        deadlocks,
+        temp_bytes,
+        temp_files,
+        tup_updated,
+        tup_inserted,
+        tup_deleted,
+        xact_commit as transactions_committed,xact_rollback as transactions_rollback,
+        numbackends,
+        active_time,
+        idle_in_transaction_time,
+        COALESCE(Extract(EPOCH from now())-EXtract(EPOCH from stats_reset),0) as stats_reset
+        FROM pg_catalog.pg_stat_database where datname is not NULL and datname not in ('template0','template1') order by tup_updated+tup_inserted+tup_deleted desc) as db left outer join (select count(1) as lock_cnt,database from pg_locks where database is not null group by database) as lk on (lk.database=db.datid)" KeyWithNone="False" Format="dbname,{}" Version=">=14">
+        <Col Name="datid" DisplayName="datid" />
+        <Col Name="dbname" DisplayName="dbname" />
+        <Col Name="datname" DisplayName="dbn" />
+        <Col Name="blks_hit" DisplayName="bkh"/>
+        <Col Name="blks_read" DisplayName="bkr"/>
+        <Col Name="tup_fetched" DisplayName="rf"/>
+        <Col Name="tup_returned" DisplayName="rr"/>
+        <Col Name="pure_tup_fetched" DisplayName="prf"/>
+        <Col Name="pure_tup_returned" DisplayName="prr"/>
+        <Col Name="conflicts" DisplayName="cft"/>
+        <Col Name="numbackends" DisplayName="nbe" />
+        <Col Name="database_size" DisplayName="dbs" />
+        <Col Name="blk_read_time" DisplayName="brt" />
+        <Col Name="blk_write_time" DisplayName="bwt" />
+        <Col Name="deadlocks" DisplayName="ddl" />
+        <Col Name="temp_bytes" DisplayName="tmpb" />
+        <Col Name="temp_files" DisplayName="tmpu" />
+        <Col Name="tup_updated" DisplayName="rupd" />
+        <Col Name="tup_inserted" DisplayName="rins" />
+        <Col Name="tup_deleted" DisplayName="rdel" />
+        <Col Name="transactions_committed" DisplayName="tc" />
+        <Col Name="transactions_rollback" DisplayName="tr" />
+        <Col Name="active_time" DisplayName="actt" />
+        <Col Name="idle_in_transaction_time" DisplayName="idtt" />
+        <Col Name="lock_cnt" DisplayName="lcnt" />
+        <Col Name="stats_reset" DisplayName="stats_reset" />
+    </pg_server>
+    
+    <pg_server Name="DBMAIN" Query="select db.*,COALESCE(lk.lock_cnt,0) as lock_cnt from (select datid,datname as dbname,datname,
+        pg_database_size(datname) as database_size,
+        blks_hit,blks_read,
+        tup_fetched,tup_returned,
+        tup_fetched as pure_tup_fetched,tup_returned as pure_tup_returned,
+        conflicts,
+        blk_read_time,blk_write_time,
+        deadlocks,
+        temp_bytes,
+        temp_files,
+        tup_updated,
+        tup_inserted,
+        tup_deleted,
+        xact_commit as transactions_committed,xact_rollback as transactions_rollback,
+        numbackends,
+        COALESCE(Extract(EPOCH from now())-EXtract(EPOCH from stats_reset),0) as stats_reset
+        FROM pg_catalog.pg_stat_database where datname is not NULL and datname not in ('template0','template1') order by tup_updated+tup_inserted+tup_deleted desc) as db left outer join (select count(1) as lock_cnt,database from pg_locks where database is not null group by database) as lk on (lk.database=db.datid)" KeyWithNone="False" Format="dbname,{}" Version="&lt;14">
+        <Col Name="datid" DisplayName="datid" />
+        <Col Name="dbname" DisplayName="dbname" />
+        <Col Name="datname" DisplayName="dbn" />
+        <Col Name="blks_hit" DisplayName="bkh"/>
+        <Col Name="blks_read" DisplayName="bkr"/>
+        <Col Name="tup_fetched" DisplayName="rf"/>
+        <Col Name="tup_returned" DisplayName="rr"/>
+        <Col Name="pure_tup_fetched" DisplayName="prf"/>
+        <Col Name="pure_tup_returned" DisplayName="prr"/>
+        <Col Name="conflicts" DisplayName="cft"/>
+        <Col Name="numbackends" DisplayName="nbe" />
+        <Col Name="database_size" DisplayName="dbs" />
+        <Col Name="blk_read_time" DisplayName="brt" />
+        <Col Name="blk_write_time" DisplayName="bwt" />
+        <Col Name="deadlocks" DisplayName="ddl" />
+        <Col Name="temp_bytes" DisplayName="tmpb" />
+        <Col Name="temp_files" DisplayName="tmpu" />
+        <Col Name="tup_updated" DisplayName="rupd" />
+        <Col Name="tup_inserted" DisplayName="rins" />
+        <Col Name="tup_deleted" DisplayName="rdel" />
+        <Col Name="transactions_committed" DisplayName="tc" />
+        <Col Name="transactions_rollback" DisplayName="tr" />
+        <Col Name="lock_cnt" DisplayName="lcnt" />
+        <Col Name="stats_reset" DisplayName="stats_reset" />
+    </pg_server>
+
+    <!-- pg_database keys should be unique across tags -->
+    <pg_database Name="PSAT" Query="select count(1) as table_cnt,sum(seq_scan) as sscan,sum(idx_scan) as iscan,sum(n_tup_ins) as tup_ins,sum(n_tup_upd) as tup_upd,sum(n_tup_del) as tup_del,sum(n_tup_hot_upd) as hot_upd,sum(n_live_tup) as live_tup,sum(n_dead_tup) as dead_tup from pg_stat_user_tables" KeyWithNone="False" Format="{}">
+        <Col Name="table_cnt" DisplayName="tcnt"/>
+        <Col Name="sscan" DisplayName="ss"/>
+        <Col Name="iscan" DisplayName="is"/>
+        <Col Name="tup_ins" DisplayName="rins"/>
+        <Col Name="tup_upd" DisplayName="rupd"/>
+        <Col Name="tup_del" DisplayName="rdel"/>
+        <Col Name="hot_upd" DisplayName="hur"/>
+        <Col Name="live_tup" DisplayName="lr"/>
+        <Col Name="dead_tup" DisplayName="dr"/>
+    </pg_database>
+    
+    <pg_database Name="PSTIO" Query="select st.*,round(st.blocks_hit * 100.0/nullif(st.blocks_hit+st.blocks_read,0),2) as cache_hit_ratio from (select sum(heap_blks_hit) as blocks_hit,sum(heap_blks_read) as blocks_read from pg_statio_user_tables) as st" KeyWithNone="False" Format="{}">
+        <Col Name="blocks_hit" DisplayName="hbh"/>
+        <Col Name="blocks_read" DisplayName="hbr"/>
+        <Col Name="cache_hit_ratio" DisplayName="chr"/>
+    </pg_database>
+
+    <pg_server Name="STLC" Query="select tmp.mode,COALESCE(count,0) as count
+        FROM ( VALUES ('accesssharelock'), ('rowsharelock'), ('rowexclusivelock'), ('shareupdateexclusivelock'),
+        ('sharelock'), ('sharerowexclusivelock'), ('exclusivelock'), ('accessexclusivelock'))
+        AS tmp(mode)
+        LEFT JOIN
+        (select lower(mode) AS mode,count(*) AS count
+        FROM pg_locks WHERE database IS NOT NULL and granted is true
+        GROUP BY lower(mode)) AS tmp2
+        ON tmp.mode=tmp2.mode ORDER BY tmp.mode" Format="mode:count">
+        <Col Name="mode" DisplayName="mode" Res="True">
+            <Res Name="accessexclusivelock" DisplayName="lael" />
+            <Res Name="accesssharelock" DisplayName="lasl" />
+            <Res Name="exclusivelock" DisplayName="lel" />
+            <Res Name="rowexclusivelock" DisplayName="lrel" />
+            <Res Name="rowsharelock" DisplayName="lrsl" />
+            <Res Name="sharelock" DisplayName="lsl" />
+            <Res Name="sharerowexclusivelock" DisplayName="lsrel" />
+            <Res Name="shareupdateexclusivelock" DisplayName="lsuel" />
+        </Col>
+        <Col Name="count" DisplayName="count"/>
+    </pg_server>
+
+    <pg_server Name="STBG" Query="select checkpoints_timed, checkpoints_req, buffers_checkpoint, buffers_clean, buffers_backend, 
+        COALESCE(Extract(EPOCH from now())-EXtract(EPOCH from stats_reset),0) as stats_reset from pg_stat_bgwriter" Format="{}">
+        <Col Name="checkpoints_req" DisplayName="cpr"/>
+        <Col Name="checkpoints_timed" DisplayName="cpt"/>
+        <Col Name="buffers_checkpoint" DisplayName="bcp"/>
+        <Col Name="buffers_clean" DisplayName="bcl"/>
+        <Col Name="buffers_backend" DisplayName="bbd"/>
+        <Col Name="stats_reset" DisplayName="stats_reset"/>
+    </pg_server>
+
+    <pg_server Name="REPD" Query="select CASE WHEN pg_last_xlog_receive_location() = pg_last_xlog_replay_location()
+        THEN 0
+        ELSE EXTRACT (EPOCH FROM now() - pg_last_xact_replay_timestamp()) * 1000
+        END AS replication_delay" Format="{}" Version="&lt;10" KeyWithNone="False">
+        <Col Name="replication_delay" DisplayName="rd"/>
+    </pg_server>
+
+    <pg_server Name="REPD" Query="select CASE WHEN pg_last_wal_receive_lsn() = pg_last_wal_replay_lsn()
+        THEN 0
+        ELSE EXTRACT (EPOCH FROM now() - pg_last_xact_replay_timestamp()) * 1000
+        END AS replication_delay" Format="{}" Version=">=10" KeyWithNone="False">
+        <Col Name="replication_delay" DisplayName="rd"/>
+    </pg_server>
+
+    <pg_server Name="WALF" Query="select count(*) as wal_file_count FROM pg_ls_waldir()" Format="{}">
+        <Col Name="wal_file_count" DisplayName="wfc"/>
+    </pg_server>
+
+    <pg_server Name="WAL" Query="select pg_wal_lsn_diff(pg_current_wal_lsn(),'0/0')::numeric as wal_bytes,0 as stats_reset" Format="{}">
+        <Col Name="wal_bytes" DisplayName="wbt"/>
+        <Col Name="stats_reset" DisplayName="stats_reset"/>
+    </pg_server>
+
+    <pg_server Name="AVAC" Query="select Case when c>s then 100.0 else round(c*100.0/s,2) end as autovacuum_worker_utilization from (select (select count(*) as count from pg_stat_progress_vacuum)::INT as c,(select setting from pg_catalog.pg_settings where name='autovacuum_max_workers')::INT as s) as f" Format="{}">
+        <Col Name="autovacuum_worker_utilization" DisplayName="awu"/>
+    </pg_server>
+
+    <pg_server Name="ARCH" Query="select archived_count,failed_count,extract(epoch from last_archived_time) last_archived_time,extract(epoch from last_failed_time) last_failed_time,COALESCE(Extract(EPOCH from now())-EXtract(EPOCH from stats_reset),0) as stats_reset from pg_stat_archiver" Format="{}" KeyWithNone="False">
+        <Col Name="archived_count" DisplayName="ac" />
+        <Col Name="failed_count" DisplayName="fc" />
+        <Col Name="last_archived_time" DisplayName="lat" />
+        <Col Name="last_failed_time" DisplayName="lft" />
+        <Col Name="stats_reset" DisplayName="stats_reset"/>
+    </pg_server>
+
+    <pg_server_config Name="PRCON" Query="select pg_is_in_recovery() as pg_is_in_recovery,(select system_identifier FROM pg_control_system()) as system_identifier" Format="{}">
+        <Col Name="pg_is_in_recovery" DisplayName="piir" />
+        <Col Name="system_identifier" DisplayName="sid" />
+    </pg_server_config>
+
+    <pg_server_config Name="CONFIG" Query="select name,setting from pg_settings where name in
+        ('autovacuum',
+        'autovacuum_analyze_scale_factor',
+        'autovacuum_analyze_threshold',
+        'autovacuum_max_workers',
+        'autovacuum_naptime',
+        'autovacuum_vacuum_scale_factor',
+        'autovacuum_vacuum_threshold',
+        'tcp_keepalives_count',
+        'tcp_keepalives_idle',
+        'tcp_keepalives_interval',
+        'shared_preload_libraries',
+        'default_tablespace',
+        'default_transaction_isolation',
+        'statement_timeout',
+        'temp_tablespaces',
+        'transaction_isolation',
+        'max_connections',
+        'port',
+        'superuser_reserved_connections',
+        'config_file',
+        'data_directory',
+        'block_size',
+        'server_version',
+        'server_version_num',
+        'wal_block_size',
+        'wal_segment_size',
+        'synchronous_standby_names',
+        'max_replication_slots',
+        'max_wal_senders',
+        'wal_sender_timeout',
+        'hot_standby',
+        'wal_receiver_timeout',
+        'vacuum_cost_page_dirty',
+        'vacuum_cost_page_hit',
+        'vacuum_cost_page_miss',
+        'archive_timeout',
+        'checkpoint_timeout',
+        'max_wal_size',
+        'min_wal_size',
+        'commit_delay',
+        'full_page_writes',
+        'wal_compression',
+        'wal_level')" Format="nam:set">
+        <Col Name="name" DisplayName="nam" Res="True">
+            <Res Name="autovacuum" DisplayName="auv"/>
+            <Res Name="autovacuum_analyze_scale_factor" DisplayName="ausf"/>
+            <Res Name="autovacuum_analyze_threshold" DisplayName="auat"/>
+            <Res Name="autovacuum_max_workers" DisplayName="aumw"/>
+            <Res Name="autovacuum_naptime" DisplayName="aunp"/>
+            <Res Name="autovacuum_vacuum_scale_factor" DisplayName="auvs"/>
+            <Res Name="autovacuum_vacuum_threshold" DisplayName="auvt"/>
+            <Res Name="tcp_keepalives_count" DisplayName="tkc"/>
+            <Res Name="tcp_keepalives_idle" DisplayName="tki"/>
+            <Res Name="tcp_keepalives_interval" DisplayName="tkil"/>
+            <Res Name="shared_preload_libraries" DisplayName="spl"/>
+            <Res Name="default_tablespace" DisplayName="dts"/>
+            <Res Name="default_transaction_isolation" DisplayName="dti"/>
+            <Res Name="statement_timeout" DisplayName="stt"/>
+            <Res Name="temp_tablespaces" DisplayName="tts"/>
+            <Res Name="transaction_isolation" DisplayName="ti"/>
+            <Res Name="max_connections" DisplayName="mx"/>
+            <Res Name="port" DisplayName="pt"/>
+            <Res Name="superuser_reserved_connections" DisplayName="surc"/>
+            <Res Name="config_file" DisplayName="cf"/>
+            <Res Name="data_directory" DisplayName="dd"/>
+            <Res Name="block_size" DisplayName="bs"/>
+            <Res Name="server_version" DisplayName="sv"/>
+            <Res Name="server_version_num" DisplayName="svn"/>
+            <Res Name="wal_block_size" DisplayName="wbs"/>
+            <Res Name="wal_segment_size" DisplayName="wss"/>
+            <Res Name="synchronous_standby_names" DisplayName="ssn"/>
+            <Res Name="max_replication_slots" DisplayName="mrs"/>
+            <Res Name="max_wal_senders" DisplayName="mws"/>
+            <Res Name="wal_sender_timeout" DisplayName="wst"/>
+            <Res Name="hot_standby" DisplayName="hsb"/>
+            <Res Name="wal_receiver_timeout" DisplayName="wrt"/>
+            <Res Name="vacuum_cost_page_dirty" DisplayName="vcpd"/>
+            <Res Name="vacuum_cost_page_hit" DisplayName="vcph"/>
+            <Res Name="vacuum_cost_page_miss" DisplayName="vcpm"/>
+            <Res Name="archive_timeout" DisplayName="att"/>
+            <Res Name="checkpoint_timeout" DisplayName="ctt"/>
+            <Res Name="max_wal_size" DisplayName="maws"/>
+            <Res Name="min_wal_size" DisplayName="miws"/>
+            <Res Name="commit_delay" DisplayName="cd"/>
+            <Res Name="full_page_writes" DisplayName="fpw"/>
+            <Res Name="wal_compression" DisplayName="wcn"/>
+            <Res Name="wal_level" DisplayName="wlvl"/>
+        </Col>
+        <Col Name="setting" DisplayName="set"/>
+    </pg_server_config>
+
+</Queries>

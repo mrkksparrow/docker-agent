@@ -1,0 +1,105 @@
+{
+  "hadoop_yarn": {
+    "register_api": {
+      "api": [
+        "/ws/v1/cluster"
+      ],
+      "output_tag": "register"
+    },
+    "metrics_api": {
+      "yarn_metrics": {
+        "api": "/ws/v1/cluster/metrics",
+        "output_tag": "yarn_metrics"
+      }
+    },
+    "perf_data": {
+      "HADOOP_YARN": {
+        "metrics": {
+          "availability": {
+            "value": "1"
+          },
+          "ct": {
+            "expr_for_ct": "AgentUtil.getTimeInMillis()",
+            "expr": "true"
+          },
+          "as": {
+            "value": "appsSubmitted"
+          },
+          "ac": {
+            "value": "appsCompleted"
+          },
+          "ap": {
+            "value": "appsPending"
+          },
+          "ar": {
+            "value": "appsRunning"
+          },
+          "af": {
+            "value": "appsFailed"
+          },
+          "ak": {
+            "value": "appsKilled"
+          },
+          "rm": {
+            "value": "reservedMB"
+          },
+          "am": {
+            "value": "availableMB"
+          },
+          "alm": {
+            "value": "allocatedMB"
+          },
+          "tm":{
+          "value":"totalMB"
+          },
+          "rvc": {
+            "value": "reservedVirtualCores"
+          },
+          "avc": {
+            "value": "availableVirtualCores"
+          },
+          "alvc": {
+            "value": "allocatedVirtualCores"
+          },
+          "ca": {
+            "value": "containersAllocated"
+          },
+          "cr": {
+            "value": "containersReserved"
+          },
+          "cp": {
+            "value": "containersPending"
+          },
+          "tn": {
+            "value": "totalNodes"
+          },
+          "ln": {
+            "value": "lostNodes"
+          },
+          "un": {
+            "value": "unhealthyNodes"
+          },
+          "dn": {
+            "value": "decommissionedNodes"
+          },
+          "rn": {
+            "value": "rebootedNodes"
+          },
+          "an": {
+            "value": "activeNodes"
+          },
+          "type": {
+            "value": "HADOOP_YARN"
+          },
+          "id":{
+          	"value": "host"
+          },
+          "mid": {
+            "config_obj": "host",
+            "value": -1
+          }
+        }
+      }
+    }
+  }
+}

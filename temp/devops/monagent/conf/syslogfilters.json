@@ -1,0 +1,48 @@
+{
+  "DefaultFilters": {
+    "Last 100 events": {
+      "FilterName": "Last 100 events",
+      "count": "100"
+    },
+    "Last 100 seconds": {
+      "FilterName": "Last 100 seconds",
+      "time": "-100"
+    },
+    "Severity": {
+      "FilterName": "Severity",
+      "severity": "0,1,2,3,4,5,6,7"
+    },
+    "Facility": {
+      "FilterName": "Facility",
+      "facility": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23"
+    },
+    "Auth Failure": {
+      "FilterName": "Auth Failure",
+      "message": ":authentication failures"
+    },
+    "Session opened": {
+      "FilterName": "Last 100 seconds",
+      "message": "session opened for user"
+    },
+    "Unsuccessful User Logons": {
+      "FilterName": "Unsuccessful User Logons",
+      "message": "failed for "
+    },
+    "Thermal": {
+      "FilterName": "Thermal",
+      "message": "Thermal monitoring handled by SMI"
+    }
+  },
+  "CustomFilters": {
+    
+    
+  },
+  "Filter Groups": {
+    "Default": [
+      "Facility"
+    ],
+    "Custom": [
+      
+      ]
+  }
+}
